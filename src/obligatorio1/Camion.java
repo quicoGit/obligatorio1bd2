@@ -4,10 +4,15 @@
  */
 package obligatorio1;
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+
 /**
  *
  * @author JÑahui
  */
+@Entity
+@DiscriminatorValue("3")
 public class Camion extends Vehiculo {
 
     private int carga;
@@ -17,6 +22,9 @@ public class Camion extends Vehiculo {
         super(matricula, nroMotor, nroChasis, marca, modelo, dueño);
         this.carga = carga;
         this.ejes = ejes;
+    }
+
+    public Camion() {
     }
 
     public int getCarga() {

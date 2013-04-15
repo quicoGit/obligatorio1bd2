@@ -12,6 +12,8 @@ import javax.persistence.*;
  * @author JÑahui
  */
 @Entity
+@DiscriminatorColumn(name="tipo_vehiculo")
+@Inheritance(strategy= InheritanceType.SINGLE_TABLE)
 public class Vehiculo implements Serializable {
 
     @Id

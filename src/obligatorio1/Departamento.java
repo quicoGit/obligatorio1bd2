@@ -4,19 +4,27 @@
  */
 package obligatorio1;
 
+import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
 /**
  *
  * @author JÑahui
  */
-public class Departamento {
-    
-    //@OneToMany(fetch = FetchType.LAZY, mappedBy = "departamento")
+@Entity
+public class Departamento implements Serializable {
+
+    @Id
     private int id;
     private String nombre;
 
     public Departamento(int id, String nombre) {
         this.id = id;
         this.nombre = nombre;
+    }
+
+    public Departamento() {
     }
 
     public int getId() {
@@ -34,5 +42,9 @@ public class Departamento {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-    
+
+    @Override
+    public String toString() {
+        return "Departamento{" + "id=" + id + ", nombre=" + nombre + '}';
+    }
 }
