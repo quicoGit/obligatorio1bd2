@@ -42,4 +42,9 @@ public class Camion extends Vehiculo {
     public void setEjes(short ejes) {
         this.ejes = ejes;
     }
+
+    @Override
+    public String toString() {
+        return "Vehiculo {" + "matricula=" + this.getMatricula() + ", nroMotor=" + this.getNroMotor() + ", nroChasis=" + this.getNroChasis() + ", marca=" + this.getMarca() + ", modelo=" + this.getModelo() + "Camion {" + "carga=" + carga + ", ejes=" + ejes + '}';
+    }
 }

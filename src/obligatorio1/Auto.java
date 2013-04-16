@@ -32,4 +32,8 @@ public class Auto extends Vehiculo {
     public void setConvertible(boolean convertible) {
         this.convertible = convertible;
     }
+
+    public String toString() {
+        return "Vehiculo {" + "matricula=" + this.getMatricula() + ", nroMotor=" + this.getNroMotor() + ", nroChasis=" + this.getNroChasis() + ", marca=" + this.getMarca() + ", modelo=" + this.getModelo() + "Auto {" + "convertible=" + convertible + '}' + '}';
+    }
 }

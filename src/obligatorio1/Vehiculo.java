@@ -12,8 +12,8 @@ import javax.persistence.*;
  * @author JÑahui
  */
 @Entity
-@DiscriminatorColumn(name="tipo_vehiculo")
-@Inheritance(strategy= InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "tipo_vehiculo")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Vehiculo implements Serializable {
 
     @Id
@@ -40,7 +40,7 @@ public class Vehiculo implements Serializable {
 
     @Override
     public String toString() {
-        return "Vehiculo{" + "matricula=" + matricula + ", nroMotor=" + nroMotor + ", nroChasis=" + nroChasis + ", marca=" + marca + ", modelo=" + modelo + ", due\u00f1o=" + dueño + '}';
+        return "Vehiculo {" + "matricula=" + matricula + ", nroMotor=" + nroMotor + ", nroChasis=" + nroChasis + ", marca=" + marca + ", modelo=" + modelo + '}';
     }
 
     public String getMatricula() {

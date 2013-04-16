@@ -18,28 +18,32 @@ import javax.persistence.Temporal;
  */
 @Entity
 public class LicenciaConductor implements Serializable {
-    
+
     @Id
     private int numero;
     private String categoria;
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date vencimiento;
-    private String restriccion;   
+    @ManyToOne
+    @JoinColumn(name = "ci_propietario")
+    private Persona propietario;
+    private String restriccion;
     @ManyToOne
     @JoinColumn(name = "id_departamento")
     private Departamento departamento;
 
-    public LicenciaConductor(int numero, String categoria, Date vencimiento, String restriccion, Departamento departamento) {
+    public LicenciaConductor(int numero, String categoria, Date vencimiento, Persona propietario, String restriccion, Departamento departamento) {
         this.numero = numero;
         this.categoria = categoria;
         this.vencimiento = vencimiento;
+        this.propietario = propietario;
         this.restriccion = restriccion;
         this.departamento = departamento;
     }
 
     public LicenciaConductor() {
     }
-    
+
     public int getNumero() {
         return numero;
     }
@@ -80,9 +84,16 @@ public class LicenciaConductor implements Serializable {
         this.departamento = departamento;
     }
 
+    public Persona getPropietario() {
+        return propietario;
+    }
+
+    public void setPropietario(Persona propietario) {
+        this.propietario = propietario;
+    }
+
     @Override
     public String toString() {
-        return "LicenciaConductor{" + "numero=" + numero + ", categoria=" + categoria + ", vencimiento=" + vencimiento + ", restriccion=" + restriccion + ", departamento=" + departamento + '}';
+        return "LicenciaConductor {" + "numero=" + numero + ", categoria=" + categoria + ", vencimiento=" + vencimiento + ", restriccion=" + restriccion + ", departamento=" + departamento + '}';
     }
-    
 }

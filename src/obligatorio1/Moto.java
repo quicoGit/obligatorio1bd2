@@ -17,8 +17,8 @@ import javax.persistence.ManyToOne;
  */
 @Entity
 @DiscriminatorValue("2")
-public class Moto extends Vehiculo{
-    
+public class Moto extends Vehiculo {
+
     @ManyToOne
     @JoinColumn(name = "id_tipomoto")
     private TipoMoto tipo;
@@ -27,14 +27,9 @@ public class Moto extends Vehiculo{
         super(matricula, nroMotor, nroChasis, marca, modelo, dueño);
         this.tipo = tipo;
     }
-    public Moto(TipoMoto tipo) {
-        this.tipo = tipo;
-    }
-    
 
     public Moto() {
     }
-    
 
     public TipoMoto getTipo() {
         return tipo;
@@ -42,5 +37,10 @@ public class Moto extends Vehiculo{
 
     public void setTipo(TipoMoto tipo) {
         this.tipo = tipo;
+    }
+
+    @Override
+    public String toString() {
+        return "Vehiculo {" + "matricula=" + this.getMatricula() + ", nroMotor=" + this.getNroMotor() + ", nroChasis=" + this.getNroChasis() + ", marca=" + this.getMarca() + ", modelo=" + this.getModelo() + "Moto {" + "tipo=" + tipo + '}';
     }
 }

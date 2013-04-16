@@ -21,7 +21,7 @@ public class Persona implements Serializable {
     private String domicilio;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "dueño")//atributo de vehiculo-indica la relacion inversa
     private Set<Vehiculo> vehiculos;
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "numero")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "propietario")
     private Set<LicenciaConductor> licenciasDeConducir;
 
     public Persona(int ci, String apellido, String domicilio) {
@@ -75,6 +75,6 @@ public class Persona implements Serializable {
 
     @Override
     public String toString() {
-        return "Persona{" + "ci=" + ci + ", apellido=" + apellido + ", domicilio=" + domicilio + '}';
+        return "Persona {" + "ci=" + ci + ", apellido=" + apellido + ", domicilio=" + domicilio + '}';
     }
 }
