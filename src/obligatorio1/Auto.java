@@ -33,6 +33,7 @@ public class Auto extends Vehiculo {
         this.convertible = convertible;
     }
 
+    @Override
     public String toString() {
         return "Vehiculo {" + "matricula=" + this.getMatricula() + ", nroMotor=" + this.getNroMotor() + ", nroChasis=" + this.getNroChasis() + ", marca=" + this.getMarca() + ", modelo=" + this.getModelo() + "Auto {" + "convertible=" + convertible + '}' + '}';
     }

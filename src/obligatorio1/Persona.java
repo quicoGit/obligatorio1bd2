@@ -20,7 +20,7 @@ public class Persona implements Serializable {
     private int ci;
     private String apellido;
     private String domicilio;
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "dueño", cascade = CascadeType.ALL)//atributo de vehiculo-indica la relacion inversa
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "dueño", cascade = CascadeType.PERSIST)//atributo de vehiculo-indica la relacion inversa
     private Set<Vehiculo> vehiculos;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "propietario", cascade = CascadeType.ALL)//Defines the set of cascadable
     //operations that are propagated to the associated entity
@@ -41,6 +41,14 @@ public class Persona implements Serializable {
         boolean resultado = false;
         if (v != null) {
             resultado = vehiculos.add(v);
+        }
+        return resultado;
+    }
+
+    public boolean agregarLicencia(LicenciaConductor l) {
+        boolean resultado = false;
+        if (l != null) {
+            resultado = licenciasDeConducir.add(l);
         }
         return resultado;
     }
