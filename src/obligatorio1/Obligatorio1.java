@@ -4,6 +4,8 @@
  */
 package obligatorio1;
 
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 
 /**
@@ -17,8 +19,19 @@ public class Obligatorio1 {
      */
     public static void main(String[] args) {
         EntityManager em = Persistence.createEntityManagerFactory("obligatorio1").createEntityManager();
-        ConsultasJPQL c = new ConsultasJPQL();
-        c.consultaLicPer(em);
+//        ConsultasJPQL c = new ConsultasJPQL();
+//        c.consultaLicPer(em);
+        AltasYBajas prueba = new AltasYBajas(em);
+
+        Set<LicenciaConductor> licencias = new HashSet<LicenciaConductor>();
+        licencias.add(new LicenciaConductor(em, 23178938, "R", null, 45785403, null, 1));
+        licencias.add(new LicenciaConductor(em, 23178939, "A", null, 45785403, null, 1));
+
+        Persona persona = new Persona(45785403, null, null);
+        persona.setLicenciasDeConducir(licencias);
+        
+        prueba.acutualizarLicencias(persona);
+
         em.close();
     }
 }

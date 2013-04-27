@@ -7,6 +7,7 @@ package obligatorio1;
 import java.io.Serializable;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -26,6 +27,9 @@ public class Moto extends Vehiculo {
     public Moto(TipoMoto tipo, String matricula, String nroMotor, String nroChasis, String marca, String modelo, Persona dueño) {
         super(matricula, nroMotor, nroChasis, marca, modelo, dueño);
         this.tipo = tipo;
+    }
+    public Moto(EntityManager em, TipoMoto tipo, String matricula, String nroMotor, String nroChasis, String marca, String modelo, int dueño) {
+        this(tipo, matricula, nroMotor, nroChasis, marca, modelo, em.find(Persona.class, dueño));
     }
 
     public Moto() {

@@ -27,7 +27,5 @@ public class ConsultasJPQL {
         for (Persona persona : listaPer) {
             System.out.println("Personas que tienen más de una licencia del mismo tipo emitidas en distintos departamentos: " + persona);
         }
-
-
     }
 }

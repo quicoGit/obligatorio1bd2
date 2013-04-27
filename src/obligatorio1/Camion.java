@@ -6,6 +6,7 @@ package obligatorio1;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 
 /**
  *
@@ -22,6 +23,9 @@ public class Camion extends Vehiculo {
         super(matricula, nroMotor, nroChasis, marca, modelo, dueño);
         this.carga = carga;
         this.ejes = ejes;
+    }
+    public Camion(EntityManager em, int carga, short ejes, String matricula, String nroMotor, String nroChasis, String marca, String modelo, int dueño) {
+        this(carga, ejes, matricula, nroMotor, nroChasis, marca, modelo, em.find(Persona.class, dueño));       
     }
 
     public Camion() {

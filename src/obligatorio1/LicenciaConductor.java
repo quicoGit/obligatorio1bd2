@@ -7,6 +7,7 @@ package obligatorio1;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -41,7 +42,19 @@ public class LicenciaConductor implements Serializable {
         this.departamento = departamento;
     }
 
+    public LicenciaConductor(EntityManager em, int numero, String categoria, Date vencimiento, int propietario, String restriccion, int departamento) {
+        this(numero, categoria, vencimiento, em.find(Persona.class, propietario), restriccion, em.find(Departamento.class, departamento));
+    }
+
     public LicenciaConductor() {
+    }
+
+    public void copy(LicenciaConductor otra) {
+        setCategoria(otra.getCategoria());
+        setVencimiento(otra.getVencimiento());
+//        setPropietario(otra.getPropietario());
+        setRestriccion(otra.getRestriccion());
+//        setDepartamento(otra.getDepartamento());
     }
 
     public int getNumero() {
@@ -95,5 +108,30 @@ public class LicenciaConductor implements Serializable {
     @Override
     public String toString() {
         return "LicenciaConductor {" + "numero=" + numero + ", categoria=" + categoria + ", vencimiento=" + vencimiento + ", restriccion=" + restriccion + ", departamento=" + departamento + '}';
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 53 * hash + this.numero;
+        return hash;
+    }
+
+    /**
+     * Equals segun PK
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final LicenciaConductor other = (LicenciaConductor) obj;
+        if (this.numero != other.numero) {
+            return false;
+        }
+        return true;
     }
 }
