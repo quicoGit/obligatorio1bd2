@@ -25,18 +25,21 @@ public class Obligatorio1 {
 //        c.consultaLicPer(em);
         AltasYBajas a = new AltasYBajas();
         Persona p = new Persona(45609876, "Jeasmine", "Bv Artigas");
-        
+        LicenciaConductor li = new LicenciaConductor(a.verificarConexion(), 23178938, "R", null, 45609876, null, 1);
+        LicenciaConductor lo = new LicenciaConductor(a.verificarConexion(), 23134739, "A", null, 45609876, null, 1);
         List<LicenciaConductor> licencias = new ArrayList<>();
-        licencias.add(new LicenciaConductor(a.verificarConexion(), 23178938, "R", null, 45609876, null, 1));
-        licencias.add(new LicenciaConductor(a.verificarConexion(), 23134739, "A", null, 45609876, null, 1));
-        
-        
+        licencias.add(li);
+        licencias.add(lo);        
         List<Vehiculo> vehiculos = new ArrayList<>();
-        vehiculos.add(new Auto(a.verificarConexion(), true, "aaa000", "1234567", "ABCD98765", "BMW" , "2012", 45609876) );
-        vehiculos.add(new Vehiculo(a.verificarConexion(), "bbb000", "65541723", "HSBC4321", "Bicy", "2010", 45609876));
-        a.altaDePersona(p,null,licencias);
-
+        Auto v1 = new Auto(a.verificarConexion(), true, "aaa000", "1234567", "ABCD98765", "BMW" , "2012", 45609876);
+        vehiculos.add(v1 );
+        Vehiculo v2 = new Vehiculo(a.verificarConexion(), "bbb000", "65541723", "HSBC4321", "Bicy", "2010", 45609876);
+        vehiculos.add(v2);
+//        for (Vehiculo vehiculo : vehiculos) {
+//            a.bajaDeVehiculo(vehiculo);            
+//        }
+//        a.bajaDePersona(p);
 //        prueba.acutualizarLicencias(persona);
-
+        a.altaDePersona(p, vehiculos, licencias);   
     }
 }
