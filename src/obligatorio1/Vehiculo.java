@@ -13,6 +13,7 @@ import javax.persistence.*;
  */
 @Entity
 @DiscriminatorColumn(name = "tipo_vehiculo")
+@DiscriminatorValue("4")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Vehiculo implements Serializable {
 
@@ -33,6 +34,21 @@ public class Vehiculo implements Serializable {
         this.marca = marca;
         this.modelo = modelo;
         this.dueño = dueño;
+    }
+
+    /**
+     *
+     * @param em
+     * @param matricula
+     * @param nroMotor
+     * @param nroChasis
+     * @param marca
+     * @param modelo
+     * @param dueño
+     */
+    public Vehiculo(EntityManager em,String matricula, String nroMotor, String nroChasis, String marca, String modelo, int dueño) {
+        this(matricula, nroMotor, nroChasis, marca, modelo, em.find(Persona.class, dueño));
+
     }
 
     public Vehiculo() {

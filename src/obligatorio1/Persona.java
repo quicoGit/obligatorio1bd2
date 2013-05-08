@@ -30,8 +30,8 @@ public class Persona implements Serializable {
         this.ci = ci;
         this.apellido = apellido;
         this.domicilio = domicilio;
-        this.licenciasDeConducir = new HashSet<LicenciaConductor>();
-        this.vehiculos = new HashSet<Vehiculo>();
+        this.licenciasDeConducir = new HashSet<>();
+        this.vehiculos = new HashSet<>();
     }
 
     public Persona() {

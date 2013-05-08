@@ -5,12 +5,10 @@
 package obligatorio1;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.EntityManager;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
 
 /**
  *
@@ -18,33 +16,74 @@ import javax.persistence.EntityManager;
  */
 public class AltasYBajas {
 
-    private EntityManager em;
+    public AltasYBajas() {
+    }
 
-    public AltasYBajas(EntityManager em) {
-        this.em = em;
+    public EntityManager verificarConexion() {
+        try {
+            EntityManager em = Persistence.createEntityManagerFactory("obligatorio1").createEntityManager();
+            return em;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public void bajaDePersona(Persona p) {
+        EntityManager em = verificarConexion();
+        if (em != null && p != null) {
+            if (em.find(Persona.class, p.getCi()) != null) {
+                try {
+                    Persona mergedMember = em.merge(em.find(Persona.class, p.getCi()));
+                    em.getTransaction().begin();
+                    em.remove(mergedMember);
+                    System.out.println("La eliminacion de la persona " + p.getCi() + " se realizo correctamente");
+                    em.getTransaction().commit();
+                } catch (Exception e) {
+                    System.out.println("Exception caught: " + e.getMessage());
+                }
+            } else {
+                System.out.println("La persona ha elminar no se encuentra en la base de datos");
+            }
+        } else {
+            System.out.println("No se pudo realizar la operacion, la conexion falló");
+        }
+        em.close();
     }
 
     public void altaDePersona(Persona p, List<Vehiculo> listaV, List<LicenciaConductor> listaL) {
-        if (em.find(Persona.class, p.getCi()) != null) {
-            System.out.println("Ya existe una persona con dicha cedula: " + p.getCi());
-        } else {
-            for (Vehiculo vehiculo : listaV) {
-                p.agregarVehiculo(vehiculo);
-            }
-            for (LicenciaConductor licenciaConductor : listaL) {
-                p.agregarLicencia(licenciaConductor);
-            }
-            try {
-                em.getTransaction().begin();
-                em.persist(p);
-                em.getTransaction().commit();
-            } catch (Exception e) {
-                e.printStackTrace();
+        EntityManager em = verificarConexion();
+        if (em != null) {
+            if (em.find(Persona.class, p.getCi()) != null) {
+                System.out.println("No se pudo realizar el alta, ya existe una persona con dicha cedula: " + p.getCi());
+            } else {
+                if (listaV != null) {
+                    for (Vehiculo vehiculo : listaV) {
+                        p.agregarVehiculo(vehiculo);
+                    }
+                }
+                if (listaL != null) {
+                    for (LicenciaConductor licenciaConductor : listaL) {
+                        if (em.find(LicenciaConductor.class, licenciaConductor.getDepartamento().getId()) != null) {
+                            p.agregarLicencia(licenciaConductor);
+                        } else {
+                            System.out.println("La licencia "+licenciaConductor.getNumero()+"no se pudo agregar dado que no es de ningun departamento conocido");
+                        }
+                    }
+                }
+
+                try {
+                    em.getTransaction().begin();
+                    em.persist(p);
+                    em.getTransaction().commit();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
     public void bajaDeVehiculo(Vehiculo v) {
+        EntityManager em = verificarConexion();
         try {
             Vehiculo vehiculo = em.find(v.getClass(), v.getMatricula());
             em.getTransaction().begin();
@@ -56,6 +95,7 @@ public class AltasYBajas {
     }
 
     public Persona acutualizarLicencias(Persona p) {
+        EntityManager em = verificarConexion();
         try {
             Persona persona = em.find(Persona.class, p.getCi());
 
