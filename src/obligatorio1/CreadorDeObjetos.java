@@ -67,7 +67,7 @@ public class CreadorDeObjetos {
             em.persist(d);
             em.getTransaction().commit();
         } catch (Exception e) {
-            System.out.println("Ese departamento ya existe");
+            System.out.println("Exception caught: " +  e. getMessage());   
         }
 
     }
