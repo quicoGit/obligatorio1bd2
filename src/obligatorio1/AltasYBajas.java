@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
-import javax.persistence.Query;
 
 /**
  *
@@ -18,28 +17,45 @@ public class AltasYBajas {
 
     public AltasYBajas() {
     }
+    private EntityManager em = null;
+
+    public EntityManager getEm() {
+        return em;
+    }
+
+    public void setEm(EntityManager em) {
+        this.em = em;
+    }
 
     public EntityManager verificarConexion() {
-        try {
-            EntityManager em = Persistence.createEntityManagerFactory("obligatorio1").createEntityManager();
-            return em;
-        } catch (Exception e) {
-            return null;
+        if (getEm() == null) {
+            try {
+                EntityManager manager = Persistence.createEntityManagerFactory("obligatorio1").createEntityManager();
+                setEm(manager);
+                return manager;
+            } catch (Exception e) {
+                System.out.println("Exception caught: " + e.getMessage());
+            }
         }
+        return getEm();
+
     }
 
     public void bajaDePersona(Persona p) {
-        EntityManager em = verificarConexion();
-        if (em != null && p != null) {
-            if (em.find(Persona.class, p.getCi()) != null) {
+        EntityManager manager = verificarConexion();
+        if (manager != null && p != null) {
+            if (manager.find(Persona.class, p.getCi()) != null) {
                 try {
-                    Persona mergedMember = em.merge(em.find(Persona.class, p.getCi()));
-                    em.getTransaction().begin();
-                    em.remove(mergedMember);
+                    Persona mergedMember = manager.merge(manager.find(Persona.class, p.getCi()));
+                    manager.getTransaction().begin();
+                    manager.remove(mergedMember);
                     System.out.println("La eliminacion de la persona " + p.getCi() + " se realizo correctamente");
-                    em.getTransaction().commit();
+                    manager.getTransaction().commit();
                 } catch (Exception e) {
                     System.out.println("Exception caught: " + e.getMessage());
+                } finally {
+                    manager.close();
+                    setEm(null);
                 }
             } else {
                 System.out.println("La persona ha elminar no se encuentra en la base de datos");
@@ -47,13 +63,12 @@ public class AltasYBajas {
         } else {
             System.out.println("No se pudo realizar la operacion, la conexion falló");
         }
-        em.close();
     }
 
     public void altaDePersona(Persona p, List<Vehiculo> listaV, List<LicenciaConductor> listaL) {
-        EntityManager em = verificarConexion();
-        if (em != null) {
-            if (em.find(Persona.class, p.getCi()) != null) {
+        EntityManager manager = verificarConexion();
+        if (manager != null) {
+            if (manager.find(Persona.class, p.getCi()) != null) {
                 System.out.println("No se pudo realizar el alta, ya existe una persona con dicha cedula: " + p.getCi());
             } else {
                 if (listaV != null) {
@@ -63,44 +78,44 @@ public class AltasYBajas {
                 }
                 if (listaL != null) {
                     for (LicenciaConductor licenciaConductor : listaL) {
-                        if (em.find(LicenciaConductor.class, licenciaConductor.getDepartamento().getId()) != null) {
+                        if (licenciaConductor.getDepartamento() != null) {
                             p.agregarLicencia(licenciaConductor);
                         } else {
-                            System.out.println("La licencia "+licenciaConductor.getNumero()+"no se pudo agregar dado que no es de ningun departamento conocido");
+                            System.out.println("La licencia " + licenciaConductor.getNumero() + " no se pudo agregar dado que no es de ningun departamento conocido");
                         }
                     }
                 }
 
                 try {
-                    em.getTransaction().begin();
-                    em.persist(p);
-                    em.getTransaction().commit();
+                    manager.getTransaction().begin();
+                    manager.persist(p);
+                    manager.getTransaction().commit();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.out.println("Exception caught: " + e.getMessage());
                 }
             }
         }
     }
 
     public void bajaDeVehiculo(Vehiculo v) {
-        EntityManager em = verificarConexion();
+        EntityManager manager = verificarConexion();
         try {
-            Vehiculo vehiculo = em.find(v.getClass(), v.getMatricula());
-            em.getTransaction().begin();
-            em.remove(vehiculo);
-            em.getTransaction().commit();
+            Vehiculo vehiculo = manager.find(v.getClass(), v.getMatricula());
+            manager.getTransaction().begin();
+            manager.remove(vehiculo);
+            manager.getTransaction().commit();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Exception caught: " + e.getMessage());
         }
     }
 
     public Persona acutualizarLicencias(Persona p) {
-        EntityManager em = verificarConexion();
+        EntityManager manager = verificarConexion();
         try {
-            Persona persona = em.find(Persona.class, p.getCi());
+            Persona persona = manager.find(Persona.class, p.getCi());
 
-            em.getTransaction().begin();
-            List<LicenciaConductor> eliminar = new ArrayList<LicenciaConductor>();
+            manager.getTransaction().begin();
+            List<LicenciaConductor> eliminar = new ArrayList<>();
             for (LicenciaConductor vieja : persona.getLicenciasDeConducir()) {
                 boolean remover = true;
                 for (LicenciaConductor nueva : p.getLicenciasDeConducir()) {
@@ -117,7 +132,7 @@ public class AltasYBajas {
 
             for (LicenciaConductor licenciaConductor : eliminar) {
                 persona.removerLicencia(licenciaConductor);
-                em.remove(licenciaConductor);
+                manager.remove(licenciaConductor);
             }
 
             for (LicenciaConductor nueva : p.getLicenciasDeConducir()) {
@@ -126,11 +141,11 @@ public class AltasYBajas {
                 }
             }
 
-            em.persist(persona);
-            em.getTransaction().commit();
+            manager.persist(persona);
+            manager.getTransaction().commit();
             return persona;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Exception caught: " + e.getMessage());
             return null;
         }
     }

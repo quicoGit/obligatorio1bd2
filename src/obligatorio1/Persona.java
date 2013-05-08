@@ -8,6 +8,8 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 /**
  *
@@ -20,10 +22,10 @@ public class Persona implements Serializable {
     private int ci;
     private String apellido;
     private String domicilio;
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "dueño", cascade = CascadeType.PERSIST)//atributo de vehiculo-indica la relacion inversa
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "dueño", cascade = CascadeType.PERSIST)
     private Set<Vehiculo> vehiculos;
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "propietario", cascade = CascadeType.ALL)//Defines the set of cascadable
-    //operations that are propagated to the associated entity
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "propietario", cascade = CascadeType.ALL)
+    @OnDelete(action = OnDeleteAction.CASCADE) 
     private Set<LicenciaConductor> licenciasDeConducir;
 
     public Persona(int ci, String apellido, String domicilio) {

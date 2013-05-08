@@ -52,9 +52,7 @@ public class LicenciaConductor implements Serializable {
     public void copy(LicenciaConductor otra) {
         setCategoria(otra.getCategoria());
         setVencimiento(otra.getVencimiento());
-//        setPropietario(otra.getPropietario());
         setRestriccion(otra.getRestriccion());
-//        setDepartamento(otra.getDepartamento());
     }
 
     public int getNumero() {
