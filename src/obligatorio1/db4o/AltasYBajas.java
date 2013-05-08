@@ -16,6 +16,7 @@ public class AltasYBajas {
     public AltasYBajas(String file) {
         this.db = Db4o.openFile(file);
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+
             @Override
             public void run() {
                 db.close();
@@ -23,25 +24,63 @@ public class AltasYBajas {
         }));
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        db.close();
+    }
+
     public ObjectContainer getDb() {
         return db;
     }
 
-    public void altaDePersona(Persona p, List<Vehiculo> listaV, List<LicenciaConductor> listaL) {
-        List<Persona> resultado = db.queryByExample(new Persona(p.getCi(), null, null));
-        if (!resultado.isEmpty()) {
-            System.out.println("Ya existe una persona con dicha cedula: " + p.getCi());
+    public Persona findPersona(int ci) {
+        List<Persona> resultado = db.queryByExample(new Persona(ci, null, null));
+        switch (resultado.size()) {
+            case 0:
+                return null;
+            case 1:
+                return resultado.get(0);
+            default:
+                System.out.println("Existe mas de una Persona con la cedula: " + ci);
+                for (Persona persona : resultado) {
+                    System.out.println(persona);
+                }
+                return null;
+        }
+    }
+
+    public void bajaDePersona(Persona p) {
+        Persona existe = findPersona(p.getCi());
+        if (existe == null) {
+            throw new RuntimeException("No existe una persona con dicha cedula: " + p.getCi());
         } else {
-            for (Vehiculo vehiculo : listaV) {
-                p.agregarVehiculo(vehiculo);
+            db.delete(existe);
+            db.commit();
+        }
+    }
+
+    public void altaDePersona(Persona p, List<Vehiculo> listaV, List<LicenciaConductor> listaL) {
+        Persona existe = findPersona(p.getCi());
+        if (existe != null) {
+            throw new RuntimeException("Ya existe una persona con dicha cedula: " + p.getCi());
+        } else {
+            if (listaV != null) {
+                for (Vehiculo vehiculo : listaV) {
+                    p.agregarVehiculo(vehiculo);
+                }
             }
-            for (LicenciaConductor licenciaConductor : listaL) {
-                p.agregarLicencia(licenciaConductor);
+            if (listaL != null) {
+                for (LicenciaConductor licenciaConductor : listaL) {
+                    p.agregarLicencia(licenciaConductor);
+                }
             }
+
             try {
                 db.store(p);
                 db.commit();
             } catch (Exception e) {
+                db.rollback();
                 e.printStackTrace();
             }
         }
@@ -67,6 +106,7 @@ public class AltasYBajas {
                     break;
             }
         } catch (Exception e) {
+            db.rollback();
             e.printStackTrace();
         }
     }
@@ -93,6 +133,7 @@ public class AltasYBajas {
                     break;
             }
         } catch (Exception e) {
+            db.rollback();
             e.printStackTrace();
         }
 

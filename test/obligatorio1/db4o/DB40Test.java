@@ -1,12 +1,14 @@
 package obligatorio1.db4o;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import com.db4o.Db4oEmbedded;
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import obligatorio1.db4o.modelo.Auto;
+import obligatorio1.db4o.modelo.Persona;
+import obligatorio1.db4o.modelo.Vehiculo;
+import static org.junit.Assert.assertEquals;
+import org.junit.*;
+import org.junit.rules.ExpectedException;
 
 /**
  *
@@ -16,33 +18,107 @@ public class DB40Test {
 
     public DB40Test() {
     }
+    static AltasYBajas altasybajas;
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @BeforeClass
     public static void setUpClass() {
+        altasybajas = new AltasYBajas("tests.dbo");
     }
 
     @AfterClass
     public static void tearDownClass() {
+        altasybajas.getDb().close();
+        new File("tests.dbo").delete();
     }
 
     @Before
     public void setUp() {
-        Db4oEmbedded.openFile("test.dbo");
+        for (Object object : altasybajas.getDb().queryByExample(null)) {
+            altasybajas.getDb().delete(object);
+        }
     }
 
     @After
     public void tearDown() {
     }
 
-    /**
-     * Test of main method, of class DB40.
-     */
     @Test
-    public void testMain() throws Exception {
-        System.out.println("main");
-        String[] args = null;
-        DB40.main(args);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testAgregarPersona() throws Exception {
+        Persona p = new Persona(45203730, "Tomas", "Casita 1234");
+        final Auto fiatUno = new Auto(false, "AABB", "5", "4", "Fiat", "Uno", p);
+        List<Vehiculo> vehiculos = Arrays.asList((Vehiculo) fiatUno);
+
+        altasybajas.altaDePersona(p, vehiculos, null);
+
+        assertEquals(altasybajas.findPersona(45203730), p);
+        assertEquals(altasybajas.findPersona(45203730).getVehiculos().toArray(new Vehiculo[]{})[0], fiatUno);
+        assertEquals(altasybajas.findPersona(45203730).getVehiculos().toArray(new Vehiculo[]{})[0].getDueño(), p);
+    }
+
+    @Test
+    public void testAgregarPersonaDuplicada() throws Exception {
+        Persona p = new Persona(45203730, "Tomas", "Casita 1234");
+        final Auto fiatUno = new Auto(false, "AABB", "5", "4", "Fiat", "Uno", p);
+        List<Vehiculo> vehiculos = Arrays.asList((Vehiculo) fiatUno);
+
+        altasybajas.altaDePersona(p, vehiculos, null);
+        exception.expect(RuntimeException.class);
+        altasybajas.altaDePersona(p, null, null);
+
+        assertEquals(altasybajas.findPersona(45203730), p);
+    }
+
+    @Test
+    public void testAgregarPersonaMismaCedula() throws Exception {
+        Persona p = new Persona(45203730, "Tomas", "Casita 1234");
+        final Auto fiatUno = new Auto(false, "AABB", "5", "4", "Fiat", "Uno", p);
+        List<Vehiculo> vehiculos = Arrays.asList((Vehiculo) fiatUno);
+
+        altasybajas.altaDePersona(p, vehiculos, null);
+
+        exception.expect(RuntimeException.class);
+        altasybajas.altaDePersona(new Persona(45203730, "John", "House"), null, null);
+
+        assertEquals(altasybajas.findPersona(45203730), p);
+    }
+
+    @Test
+    public void testBorrarPersona() throws Exception {
+        Persona p = new Persona(45203730, "Tomas", "Casita 1234");
+        final Auto fiatUno = new Auto(false, "AABB", "5", "4", "Fiat", "Uno", p);
+        List<Vehiculo> vehiculos = Arrays.asList((Vehiculo) fiatUno);
+
+        altasybajas.altaDePersona(p, vehiculos, null);
+        assertEquals(altasybajas.findPersona(45203730), p);
+
+        altasybajas.bajaDePersona(p);
+        assertEquals(altasybajas.findPersona(45203730), null);
+
+        altasybajas.altaDePersona(p, vehiculos, null);
+        assertEquals(altasybajas.findPersona(45203730), p);
+
+        altasybajas.bajaDePersona(p);
+        assertEquals(altasybajas.findPersona(45203730), null);
+    }
+
+    @Test
+    public void testBorrarPersonaInexistente() throws Exception {
+        Persona p = new Persona(45203730, "Tomas", "Casita 1234");
+        exception.expect(RuntimeException.class);
+        altasybajas.bajaDePersona(p);
+        altasybajas.bajaDePersona(p);
+    }
+
+    @Test
+    public void testConsultas() throws Exception {
+        Persona p = new Persona(45203730, "Tomas", "Casita 1234");
+        final Auto fiatUno = new Auto(false, "AABB", "5", "4", "Fiat", "Uno", p);
+        List<Vehiculo> vehiculos = Arrays.asList((Vehiculo) fiatUno);
+
+        altasybajas.altaDePersona(p, vehiculos, null);
+
+        assertEquals(Consultas.consultaPromedio(altasybajas.getDb()), 1, 0.01);
     }
 }

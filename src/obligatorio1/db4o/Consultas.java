@@ -32,7 +32,7 @@ public class Consultas {
         }
     }
 
-    public static void consultaPromedio(ObjectContainer em) {
+    public static double consultaPromedio(ObjectContainer em) {
         final Estado estado = new Estado();
         em.query(new Predicate<Persona>() {
             @Override
@@ -43,6 +43,7 @@ public class Consultas {
         });
 
         System.out.println("Cantidad promedio de vehiculos por persona: " + estado.promedio());
+        return estado.promedio();
     }
 
     public static void consultaLicPer(ObjectContainer em) {
