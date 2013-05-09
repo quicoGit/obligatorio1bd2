@@ -6,9 +6,13 @@ import com.db4o.query.Predicate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.db4o.query.Query;
+import java.util.Arrays;
+import java.util.Collections;
 import obligatorio1.db4o.modelo.*;
 
 /**
@@ -34,19 +38,19 @@ public class Consultas {
 
     public static double consultaPromedio(ObjectContainer em) {
         final Estado estado = new Estado();
-        em.query(new Predicate<Persona>() {
+        ObjectSet<Persona> personas = em.query(new Predicate<Persona>() {
             @Override
             public boolean match(Persona p) {
                 estado.contar(p.getVehiculos().size());
                 return false;
             }
         });
+        personas.size(); //me aseguro que se ejecute la query
 
-        System.out.println("Cantidad promedio de vehiculos por persona: " + estado.promedio());
         return estado.promedio();
     }
 
-    public static void consultaLicPer(ObjectContainer em) {
+    public static List<Persona> consultaLicPer(ObjectContainer em) {
 
         ObjectSet<Persona> listaPer = em.query(new Predicate<Persona>() {
             private Map<String, List<LicenciaConductor>> licenciasPorCategoria = new HashMap<>();
@@ -76,8 +80,6 @@ public class Consultas {
             }
         });
 
-        for (Persona persona : listaPer) {
-            System.out.println("Personas que tienen más de una licencia del mismo tipo emitidas en distintos departamentos: " + persona);
-        }
+        return Arrays.asList(listaPer.toArray(new Persona[]{}));
     }
 }
