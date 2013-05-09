@@ -16,11 +16,9 @@ import org.junit.rules.ExpectedException;
  */
 public class DB40Test {
 
-    public DB40Test() {
-    }
-    static AltasYBajas altasybajas;
     @Rule
     public ExpectedException exception = ExpectedException.none();
+    static AltasYBajas altasybajas;
 
     @BeforeClass
     public static void setUpClass() {
@@ -64,7 +62,7 @@ public class DB40Test {
         List<Vehiculo> vehiculos = Arrays.asList((Vehiculo) fiatUno);
 
         altasybajas.altaDePersona(p, vehiculos, null);
-        exception.expect(RuntimeException.class);
+        exception.expect(PersistenciaException.class);
         altasybajas.altaDePersona(p, null, null);
 
         assertEquals(altasybajas.findPersona(45203730), p);
@@ -78,7 +76,7 @@ public class DB40Test {
 
         altasybajas.altaDePersona(p, vehiculos, null);
 
-        exception.expect(RuntimeException.class);
+        exception.expect(PersistenciaException.class);
         altasybajas.altaDePersona(new Persona(45203730, "John", "House"), null, null);
 
         assertEquals(altasybajas.findPersona(45203730), p);
@@ -106,7 +104,7 @@ public class DB40Test {
     @Test
     public void testBorrarPersonaInexistente() throws Exception {
         Persona p = new Persona(45203730, "Tomas", "Casita 1234");
-        exception.expect(RuntimeException.class);
+        exception.expect(PersistenciaException.class);
         altasybajas.bajaDePersona(p);
         altasybajas.bajaDePersona(p);
     }

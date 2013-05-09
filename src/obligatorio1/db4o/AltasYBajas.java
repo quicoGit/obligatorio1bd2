@@ -53,7 +53,7 @@ public class AltasYBajas {
     public void bajaDePersona(Persona p) {
         Persona existe = findPersona(p.getCi());
         if (existe == null) {
-            throw new RuntimeException("No existe una persona con dicha cedula: " + p.getCi());
+            throw new PersistenciaException("No existe una persona con dicha cedula: " + p.getCi());
         } else {
             db.delete(existe);
             db.commit();
@@ -63,7 +63,7 @@ public class AltasYBajas {
     public void altaDePersona(Persona p, List<Vehiculo> listaV, List<LicenciaConductor> listaL) {
         Persona existe = findPersona(p.getCi());
         if (existe != null) {
-            throw new RuntimeException("Ya existe una persona con dicha cedula: " + p.getCi());
+            throw new PersistenciaException("Ya existe una persona con dicha cedula: " + p.getCi());
         } else {
             if (listaV != null) {
                 for (Vehiculo vehiculo : listaV) {

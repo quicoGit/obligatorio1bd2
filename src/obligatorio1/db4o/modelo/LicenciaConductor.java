@@ -2,7 +2,6 @@ package obligatorio1.db4o.modelo;
 
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.EntityManager;
 
 /**
  *
