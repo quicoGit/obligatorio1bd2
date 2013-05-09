@@ -41,6 +41,44 @@ public class AltasYBajas {
 
     }
 
+    public boolean validarVehiculo(Vehiculo vehiculo, Persona p, EntityManager manager) {
+        boolean resultado = false;
+        if (vehiculo != null) {
+            if (manager.find(Vehiculo.class, vehiculo.getMatricula()) != null) {
+                resultado = true;
+                System.out.println("No se puede agregar el vehiculo de matricula " + vehiculo.getMatricula() + " ya existe en la base de datos");
+            }
+            if (vehiculo.getDueño() != null) {
+                if (vehiculo.getDueño().getCi() != p.getCi()) {
+                    resultado = true;
+                    System.out.println("El vehiculo que desea agregar esta asociada a otra persona de cedula " + p.getCi());
+                }
+            }
+        }
+        return resultado;
+    }
+
+    public boolean validarLicencia(LicenciaConductor licencia, Persona p, EntityManager manager) {
+        boolean resultado = false;
+        if (licencia != null) {
+            if (manager.find(LicenciaConductor.class, licencia.getNumero()) != null) {
+                resultado = true;
+                System.out.println("No se puede agregar el vehiculo de matricula " + licencia.getNumero() + " ya existe en la base de datos");
+            }
+            if (licencia.getPropietario() != null) {
+                if (licencia.getPropietario().getCi() != p.getCi()) {
+                    resultado = true;
+                    System.out.println("La licencia que desea agregar esta asociada a otra persona de cedula " + p.getCi());
+                }
+            }
+            if (licencia.getDepartamento() == null) {
+                resultado = true;
+                System.out.println("No se pudo agregar la licencia de numero " + licencia.getNumero() + " no pertenece a un Departamento existente en la base de datos");
+            }
+        }
+        return resultado;
+    }
+
     public void bajaDePersona(Persona p) {
         EntityManager manager = verificarConexion();
         if (p != null) {
@@ -62,8 +100,10 @@ public class AltasYBajas {
                     System.out.println("La persona ha elminar no se encuentra en la base de datos");
                 }
             } else {
-                System.out.println("No se pudo realizar la operacion, la conexion falló");
+                System.out.println("Fallo la conexion");
             }
+        } else {
+            System.out.println("Se introdulo una persona nula, no se puedo ejecutar la peticion");
         }
     }
 
@@ -88,49 +128,57 @@ public class AltasYBajas {
                     System.out.println("La licencia ha elminar no se encuentra en la base de datos");
                 }
             } else {
-                System.out.println("No se pudo realizar la operacion, la conexion falló");
+                System.out.println("Fallo la conexion");
             }
+        } else {
+            System.out.println("Se introdulo una licencia nula, no se puedo ejecutar la peticion");
         }
     }
 
     public void altaDePersona(Persona p, List<Vehiculo> listaV, List<LicenciaConductor> listaL) {
         EntityManager manager = verificarConexion();
-        if (manager != null) {
-            if (manager.find(Persona.class, p.getCi()) != null) {
-                System.out.println("No se pudo realizar el alta, ya existe una persona con dicha cedula: " + p.getCi());
-            } else {
-                if (listaV != null) {
-                    for (Vehiculo vehiculo : listaV) {
-                        if (vehiculo.getDueño() != null) {
-                            p.agregarVehiculo(vehiculo);
-                        } else {
-                            vehiculo.setDueño(p);
-                            p.agregarVehiculo(vehiculo);
-                        }
-                    }
-                }
-                if (listaL != null) {
-                    for (LicenciaConductor licenciaConductor : listaL) {
-                        if (licenciaConductor.getDepartamento() != null) {
-                            if (licenciaConductor.getPropietario() != null) {
-                                p.agregarLicencia(licenciaConductor);
-                            } else {
-                                licenciaConductor.setPropietario(p);
-                                p.agregarLicencia(licenciaConductor);
+        if (p != null) {
+            if (manager != null) {
+                if (manager.find(Persona.class, p.getCi()) != null) {
+                    System.out.println("No se pudo realizar el alta, ya existe una persona con dicha cedula: " + p.getCi());
+                } else {
+                    if (listaV != null) {
+                        for (Vehiculo vehiculo : listaV) {
+                            if (!validarVehiculo(vehiculo, p, manager)) {
+                                if (vehiculo.getDueño() != null) {
+                                    p.agregarVehiculo(vehiculo);
+                                } else {
+                                    vehiculo.setDueño(p);
+                                    p.agregarVehiculo(vehiculo);
+                                }
                             }
-                        } else {
-                            System.out.println("La licencia " + licenciaConductor.getNumero() + " no se pudo agregar dado que no es de ningun departamento conocido");
                         }
                     }
+                    if (listaL != null) {
+                        for (LicenciaConductor licenciaConductor : listaL) {
+                            if (!validarLicencia(licenciaConductor, p, manager)) {
+                                if (licenciaConductor.getPropietario() != null) {
+                                    p.agregarLicencia(licenciaConductor);
+                                } else {
+                                    licenciaConductor.setPropietario(p);
+                                    p.agregarLicencia(licenciaConductor);
+                                }
+                            }
+                        }
+                    }
+                    try {
+                        manager.getTransaction().begin();
+                        manager.persist(p);
+                        manager.getTransaction().commit();
+                    } catch (Exception e) {
+                        System.out.println("Exception caught: " + e.getMessage());
+                    }
                 }
-                try {
-                    manager.getTransaction().begin();
-                    manager.persist(p);
-                    manager.getTransaction().commit();
-                } catch (Exception e) {
-                    System.out.println("Exception caught: " + e.getMessage());
-                }
+            } else {
+                System.out.println("Fallo la conexion");
             }
+        } else {
+            System.out.println("Se introdulo una persona nula, no se puedo ejecutar la peticion");
         }
     }
 
@@ -151,49 +199,63 @@ public class AltasYBajas {
                 } else {
                     System.out.println("El vehiculo de matricula " + v.getMatricula() + " no existe en la base de datos");
                 }
+            } else {
+                System.out.println("Fallo la conexion");
             }
+        } else {
+            System.out.println("Se introdulo un vehiculo nulo, no se puedo ejecutar la peticion");
         }
-
     }
 
     public Persona acutualizarLicencias(Persona p) {
         EntityManager manager = verificarConexion();
-        try {
-            Persona persona = manager.find(Persona.class, p.getCi());
-
-            manager.getTransaction().begin();
-            List<LicenciaConductor> eliminar = new ArrayList<>();
-            for (LicenciaConductor vieja : persona.getLicenciasDeConducir()) {
-                boolean remover = true;
-                for (LicenciaConductor nueva : p.getLicenciasDeConducir()) {
-                    if (nueva.getNumero() == vieja.getNumero()) {
-                        vieja.copy(nueva);
-                        remover = false;
-                        break;
+        if (p != null) {
+            if (manager != null) {
+                if (manager.find(Persona.class, p.getCi()) != null) {
+                    try {
+                        Persona persona = manager.find(Persona.class, p.getCi());
+                        manager.getTransaction().begin();
+                        List<LicenciaConductor> eliminar = new ArrayList<>();
+                        for (LicenciaConductor vieja : persona.getLicenciasDeConducir()) {
+                            boolean remover = true;
+                            for (LicenciaConductor nueva : p.getLicenciasDeConducir()) {
+                                if (nueva.getNumero() == vieja.getNumero()) {
+                                    vieja.copy(nueva);
+                                    remover = false;
+                                    break;
+                                }
+                            }
+                            if (remover) {
+                                eliminar.add(vieja);
+                            }
+                        }
+                        for (LicenciaConductor licenciaConductor : eliminar) {
+                            persona.removerLicencia(licenciaConductor);
+                            manager.remove(licenciaConductor);
+                        }
+                        for (LicenciaConductor nueva : p.getLicenciasDeConducir()) {
+                            if (!persona.getLicenciasDeConducir().contains(nueva)) {
+                                persona.agregarLicencia(nueva);
+                            }
+                        }
+                        manager.persist(persona);
+                        manager.getTransaction().commit();
+                        return persona;
+                    } catch (Exception e) {
+                        System.out.println("Exception caught: " + e.getMessage());
+                    } finally {
+                        manager.close();
+                        setEm(null);
                     }
+                } else {
+                    System.out.println("No existe una persona en la base de datos con cedula " + p.getCi());
                 }
-                if (remover) {
-                    eliminar.add(vieja);
-                }
+            } else {
+                System.out.println("Fallo la conexion");
             }
-
-            for (LicenciaConductor licenciaConductor : eliminar) {
-                persona.removerLicencia(licenciaConductor);
-                manager.remove(licenciaConductor);
-            }
-
-            for (LicenciaConductor nueva : p.getLicenciasDeConducir()) {
-                if (!persona.getLicenciasDeConducir().contains(nueva)) {
-                    persona.agregarLicencia(nueva);
-                }
-            }
-
-            manager.persist(persona);
-            manager.getTransaction().commit();
-            return persona;
-        } catch (Exception e) {
-            System.out.println("Exception caught: " + e.getMessage());
-            return null;
+        } else {
+            System.out.println("Se introdulo una persona nula, no se puedo ejecutar la peticion");
         }
+        return null;
     }
 }

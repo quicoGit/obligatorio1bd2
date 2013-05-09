@@ -26,10 +26,13 @@ public class Obligatorio1 {
         AltasYBajas a = new AltasYBajas();
         Persona p = new Persona(45609876, "Jeasmine", "Bv Artigas");
         LicenciaConductor li = new LicenciaConductor(a.verificarConexion(), 23178938, "R", null, 45609876, null, 1);
-        LicenciaConductor lo = new LicenciaConductor(a.verificarConexion(), 23134739, "A", null, 45609876, null, 1);
+        LicenciaConductor lo = new LicenciaConductor(a.verificarConexion(), 23134739, "W", null, 45609876, null, 1);
         List<LicenciaConductor> licencias = new ArrayList<>();
-        licencias.add(li);
-        licencias.add(lo);        
+//        licencias.add(li);
+        licencias.add(lo);    
+//        for (LicenciaConductor licenciaConductor : licencias) {
+//            p.agregarLicencia(licenciaConductor);            
+//        }
         List<Vehiculo> vehiculos = new ArrayList<>();
         Auto v1 = new Auto(a.verificarConexion(), true, "aaa000", "1234567", "ABCD98765", "BMW" , "2012", 45609876);
         vehiculos.add(v1 );
@@ -39,7 +42,7 @@ public class Obligatorio1 {
 //            a.bajaDeVehiculo(vehiculo);            
 //        }
 //        a.bajaDePersona(p);
-//        prueba.acutualizarLicencias(persona);
-        a.altaDePersona(p, vehiculos, licencias);   
+        a.acutualizarLicencias(p);
+//        a.altaDePersona(p, vehiculos, licencias);   
     }
 }
