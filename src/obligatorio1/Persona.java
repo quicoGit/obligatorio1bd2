@@ -2,6 +2,7 @@ package obligatorio1;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import javax.persistence.*;
 import org.hibernate.annotations.OnDelete;
@@ -25,6 +26,8 @@ public class Persona implements Serializable {
     private Set<LicenciaConductor> licenciasDeConducir;
 
     public Persona(int ci, String apellido, String domicilio) {
+        assert (ci > 0);
+
         this.ci = ci;
         this.apellido = apellido;
         this.domicilio = domicilio;
@@ -94,5 +97,35 @@ public class Persona implements Serializable {
     @Override
     public String toString() {
         return "Persona {" + "ci=" + ci + ", apellido=" + apellido + ", domicilio=" + domicilio + '}';
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 53 * hash + this.ci;
+        hash = 53 * hash + Objects.hashCode(this.apellido);
+        hash = 53 * hash + Objects.hashCode(this.domicilio);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Persona other = (Persona) obj;
+        if (this.ci != other.ci) {
+            return false;
+        }
+        if (!Objects.equals(this.apellido, other.apellido)) {
+            return false;
+        }
+        if (!Objects.equals(this.domicilio, other.domicilio)) {
+            return false;
+        }
+        return true;
     }
 }

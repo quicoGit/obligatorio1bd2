@@ -6,6 +6,7 @@ package obligatorio1;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
@@ -253,7 +254,7 @@ public class ActualizadorBDYConsultasJPQL {
                     manager.remove(licenciaConductor);
                 }
                 for (LicenciaConductor nueva : p.getLicenciasDeConducir()) {
-                    if (!persona.getLicenciasDeConducir().contains(nueva)) {
+                    if (!contieneLicenciaPorCategoria(persona.getLicenciasDeConducir(), nueva)) {
                         if (manager.find(LicenciaConductor.class, nueva.getNumero()) == null) {
                             persona.agregarLicencia(nueva);
                         }
@@ -274,7 +275,16 @@ public class ActualizadorBDYConsultasJPQL {
         return null;
     }
 
-//CONSULTAS JPQL
+    private boolean contieneLicenciaPorCategoria(Set<LicenciaConductor> licencias, LicenciaConductor licencia) {
+        for (LicenciaConductor l : licencias) {
+            if (l.getCategoria().equals(licencia.getCategoria())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //CONSULTAS JPQL
     public void consultaPromedio() {
         EntityManager manager = verificarConexion();
         try {

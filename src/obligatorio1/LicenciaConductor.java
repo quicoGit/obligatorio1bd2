@@ -2,6 +2,7 @@ package obligatorio1;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.Id;
@@ -30,6 +31,10 @@ public class LicenciaConductor implements Serializable {
     private Departamento departamento;
 
     public LicenciaConductor(int numero, String categoria, Date vencimiento, Persona propietario, String restriccion, Departamento departamento) {
+        assert(numero > 0);
+        assert(departamento != null);
+        assert(propietario != null);
+        
         this.numero = numero;
         this.categoria = categoria;
         this.vencimiento = vencimiento;
@@ -106,14 +111,15 @@ public class LicenciaConductor implements Serializable {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 53 * hash + this.numero;
+        int hash = 3;
+        hash = 23 * hash + this.numero;
+        hash = 23 * hash + Objects.hashCode(this.categoria);
+        hash = 23 * hash + Objects.hashCode(this.vencimiento);
+        hash = 23 * hash + Objects.hashCode(this.restriccion);
+        hash = 23 * hash + Objects.hashCode(this.departamento);
         return hash;
     }
 
-    /**
-     * Equals segun PK
-     */
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -124,6 +130,18 @@ public class LicenciaConductor implements Serializable {
         }
         final LicenciaConductor other = (LicenciaConductor) obj;
         if (this.numero != other.numero) {
+            return false;
+        }
+        if (!Objects.equals(this.categoria, other.categoria)) {
+            return false;
+        }
+        if (!Objects.equals(this.vencimiento, other.vencimiento)) {
+            return false;
+        }
+        if (!Objects.equals(this.restriccion, other.restriccion)) {
+            return false;
+        }
+        if (!Objects.equals(this.departamento, other.departamento)) {
             return false;
         }
         return true;
