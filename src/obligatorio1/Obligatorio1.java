@@ -14,9 +14,7 @@ public class Obligatorio1 {
      */
     public static void main(String[] args) {
         
-        ActualizadorBDYConsultasJPQL a = new ActualizadorBDYConsultasJPQL();
-        a.consultaLicPer();
-        
+        ActualizadorBDYConsultasJPQL a = new ActualizadorBDYConsultasJPQL();        
         Persona p = new Persona(45609876, "Jeasmine", "Bv Artigas");
         LicenciaConductor li = new LicenciaConductor(a.verificarConexion(), 23178938, "R", null, 45609876, null, 1);
         LicenciaConductor lo = new LicenciaConductor(a.verificarConexion(), 23134739, "W", null, 45609876, null, 1);
@@ -36,6 +34,8 @@ public class Obligatorio1 {
 //        }
 //        a.bajaDePersona(p);
         a.acutualizarLicencias(p);
-//        a.altaDePersona(p, vehiculos, licencias);   
+//        a.altaDePersona(p, vehiculos, licencias);  
+        
+        a.consultaLicPer();
     }
 }

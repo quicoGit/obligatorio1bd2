@@ -23,11 +23,9 @@ public class ActualizadorBDYConsultasJPQL {
     public EntityManager getEm() {
         return em;
     }
-
     public void setEm(EntityManager em) {
         this.em = em;
     }
-
     public EntityManager verificarConexion() {
         if (getEm() == null) {
             try {
@@ -133,7 +131,7 @@ public class ActualizadorBDYConsultasJPQL {
             System.out.println("Se introdulo una licencia nula, no se puedo ejecutar la peticion");
         }
     }
-
+//METODOS OBLIGATORIOS
     public void altaDePersona(Persona p, List<Vehiculo> listaV, List<LicenciaConductor> listaL) {
         EntityManager manager = verificarConexion();
         if (p != null) {
@@ -263,7 +261,7 @@ public class ActualizadorBDYConsultasJPQL {
         }
         return null;
     }
-
+//CONSULTAS JPQL
     public void consultaPromedio() {
         EntityManager manager = verificarConexion();
         if (manager != null) {

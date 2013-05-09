@@ -12,7 +12,7 @@ public class JPATest {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
-    static AltasYBajas altasybajas;
+    static ActualizadorBDYConsultasJPQL actualizadorBDYConsultasJPQL;
 
     @BeforeClass
     public static void setUpClass() {
