@@ -14,9 +14,9 @@ public class Obligatorio1 {
      */
     public static void main(String[] args) {
         
-//        ConsultasJPQL c = new ConsultasJPQL();
-//        c.consultaLicPer(em);
-        AltasYBajas a = new AltasYBajas();
+        ActualizadorBDYConsultasJPQL a = new ActualizadorBDYConsultasJPQL();
+        a.consultaLicPer();
+        
         Persona p = new Persona(45609876, "Jeasmine", "Bv Artigas");
         LicenciaConductor li = new LicenciaConductor(a.verificarConexion(), 23178938, "R", null, 45609876, null, 1);
         LicenciaConductor lo = new LicenciaConductor(a.verificarConexion(), 23134739, "W", null, 45609876, null, 1);

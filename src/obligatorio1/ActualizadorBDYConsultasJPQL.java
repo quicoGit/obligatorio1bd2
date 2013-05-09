@@ -1,17 +1,22 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package obligatorio1;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 
 /**
  *
- * @author JÑahui
+ * @author Jeasty
  */
-public class AltasYBajas {
+public class ActualizadorBDYConsultasJPQL {
 
-    public AltasYBajas() {
+    public ActualizadorBDYConsultasJPQL() {
     }
     private EntityManager em = null;
 
@@ -28,13 +33,11 @@ public class AltasYBajas {
             try {
                 EntityManager manager = Persistence.createEntityManagerFactory("obligatorio1").createEntityManager();
                 setEm(manager);
-                return manager;
             } catch (Exception e) {
                 System.out.println("Exception caught: " + e.getMessage());
             }
         }
         return getEm();
-
     }
 
     public boolean validarVehiculo(Vehiculo vehiculo, Persona p, EntityManager manager) {
@@ -84,8 +87,8 @@ public class AltasYBajas {
                         Persona mergedMember = manager.merge(manager.find(Persona.class, p.getCi()));
                         manager.getTransaction().begin();
                         manager.remove(mergedMember);
-                        System.out.println("La eliminacion de la persona " + p.getCi() + " se realizo correctamente");
                         manager.getTransaction().commit();
+                        System.out.println("La eliminacion de la persona " + p.getCi() + " se realizo correctamente");
                     } catch (Exception e) {
                         System.out.println("Exception caught: " + e.getMessage());
                     } finally {
@@ -112,8 +115,8 @@ public class AltasYBajas {
                         LicenciaConductor mergedMember = manager.merge(manager.find(LicenciaConductor.class, l.getNumero()));
                         manager.getTransaction().begin();
                         manager.remove(mergedMember);
-                        System.out.println("La eliminacion de la licencia " + l.getNumero() + " se realizo correctamente");
                         manager.getTransaction().commit();
+                        System.out.println("La eliminacion de la licencia " + l.getNumero() + " se realizo correctamente");
                     } catch (Exception e) {
                         System.out.println("Exception caught: " + e.getMessage());
                     } finally {
@@ -168,6 +171,9 @@ public class AltasYBajas {
                         manager.getTransaction().commit();
                     } catch (Exception e) {
                         System.out.println("Exception caught: " + e.getMessage());
+                    } finally {
+                        manager.close();
+                        setEm(null);
                     }
                 }
             } else {
@@ -187,10 +193,13 @@ public class AltasYBajas {
                         Vehiculo mergedMember = manager.merge(manager.find(Vehiculo.class, v.getMatricula()));
                         manager.getTransaction().begin();
                         manager.remove(mergedMember);
-                        System.out.println("La eliminacion del vehiculo de matricula " + v.getMatricula() + " se realizo correctamente");
                         manager.getTransaction().commit();
+                        System.out.println("La eliminacion del vehiculo de matricula " + v.getMatricula() + " se realizo correctamente");
                     } catch (Exception e) {
                         System.out.println("Exception caught: " + e.getMessage());
+                    } finally {
+                        manager.close();
+                        setEm(null);
                     }
                 } else {
                     System.out.println("El vehiculo de matricula " + v.getMatricula() + " no existe en la base de datos");
@@ -253,5 +262,49 @@ public class AltasYBajas {
             System.out.println("Se introdulo una persona nula, no se puedo ejecutar la peticion");
         }
         return null;
+    }
+
+    public void consultaPromedio() {
+        EntityManager manager = verificarConexion();
+        if (manager != null) {
+            try {
+                Query promedio = em.createQuery("Select count(vehiculo)/(Select count(persona)from Persona persona)from Vehiculo vehiculo");
+                Long resPromedio = (Long) promedio.getSingleResult();
+                if (resPromedio != null) {
+                    System.out.println("Cantidad promedio de vehiculos por persona: " + resPromedio);
+                }
+                System.out.println("No hay resultado dado que no hay personas en la base de datos");
+            } catch (Exception e) {
+                System.out.println("Exception caught: " + e.getMessage());
+            } finally {
+                manager.close();
+                setEm(null);
+            }
+        } else {
+            System.out.println("Fallo la conexion");
+        }
+    }
+
+    public void consultaLicPer() {
+        EntityManager manager = verificarConexion();
+        if (manager != null) {
+            try {
+                Query personas = em.createQuery("Select distinct(licencia.propietario)from LicenciaConductor licencia, LicenciaConductor licCon where "
+                        + "licencia.departamento!=licCon.departamento and licencia.categoria=LicCon.categoria and licencia.propietario.ci=licCon.propietario.ci");
+                List<Persona> listaPer = personas.getResultList();
+                if (!listaPer.isEmpty()) {
+                    for (Persona persona : listaPer) {
+                        System.out.println("Personas que tienen más de una licencia del mismo tipo emitidas en distintos departamentos: " + persona);
+                    }
+                }
+                System.out.println("No hay personas que tengan más de una licencia del mismo tipo emitidas en distintos departamentos");
+            } catch (Exception e) {
+            } finally {
+                manager.close();
+                setEm(null);
+            }
+        } else {
+            System.out.println("Fallo la conexion");
+        }
     }
 }

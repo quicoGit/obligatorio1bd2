@@ -16,7 +16,6 @@ public class CreadorDeObjetos {
                 em.getTransaction().begin();
                 em.persist(vec);
                 em.getTransaction().commit();
-
             } catch (Exception e) {
                 System.out.println("Exception caught: " + e.getMessage());
             }
@@ -30,7 +29,6 @@ public class CreadorDeObjetos {
                 em.getTransaction().begin();
                 em.persist(vec);
                 em.getTransaction().commit();
-
             } catch (Exception e) {
                 System.out.println("Exception caught: " + e.getMessage());
             }
@@ -44,7 +42,6 @@ public class CreadorDeObjetos {
                 em.getTransaction().begin();
                 em.persist(vec);
                 em.getTransaction().commit();
-
             } catch (Exception e) {
                 System.out.println("Exception caught: " + e.getMessage());
             }
@@ -58,7 +55,6 @@ public class CreadorDeObjetos {
                 em.getTransaction().begin();
                 em.persist(lic);
                 em.getTransaction().commit();
-
             } catch (Exception e) {
                 System.out.println("Exception caught: " + e.getMessage());
             }
