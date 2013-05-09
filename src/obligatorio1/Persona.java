@@ -21,7 +21,7 @@ public class Persona implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "dueño", cascade = CascadeType.PERSIST)
     private Set<Vehiculo> vehiculos;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "propietario", cascade = CascadeType.ALL)
-    @OnDelete(action = OnDeleteAction.CASCADE) 
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<LicenciaConductor> licenciasDeConducir;
 
     public Persona(int ci, String apellido, String domicilio) {
@@ -35,20 +35,16 @@ public class Persona implements Serializable {
     public Persona() {
     }
 
-    public boolean agregarVehiculo(Vehiculo v) {
-        boolean resultado = false;
+    public void agregarVehiculo(Vehiculo v) {
         if (v != null) {
-            resultado = vehiculos.add(v);
+            vehiculos.add(v);
         }
-        return resultado;
     }
 
-    public boolean agregarLicencia(LicenciaConductor l) {
-        boolean resultado = false;
+    public void agregarLicencia(LicenciaConductor l) {
         if (l != null) {
-            resultado = licenciasDeConducir.add(l);
+            licenciasDeConducir.add(l);
         }
-        return resultado;
     }
 
     public boolean removerLicencia(LicenciaConductor l) {

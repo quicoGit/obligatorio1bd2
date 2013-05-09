@@ -23,9 +23,11 @@ public class ActualizadorBDYConsultasJPQL {
     public EntityManager getEm() {
         return em;
     }
+
     public void setEm(EntityManager em) {
         this.em = em;
     }
+
     public EntityManager verificarConexion() {
         if (getEm() == null) {
             try {
@@ -76,17 +78,23 @@ public class ActualizadorBDYConsultasJPQL {
         return resultado;
     }
 
-    public void bajaDePersona(Persona p) {
+    public void bajaDePersona(int ci) {
         EntityManager manager = verificarConexion();
-        if (p != null) {
+        if (ci > 0) {
             if (manager != null) {
-                if (manager.find(Persona.class, p.getCi()) != null) {
+                if (manager.find(Persona.class, ci) != null) {
                     try {
-                        Persona mergedMember = manager.merge(manager.find(Persona.class, p.getCi()));
+                        Persona mergedMember = manager.merge(manager.find(Persona.class, ci));
+                        for (Vehiculo vehiculo : mergedMember.getVehiculos()) {
+                            vehiculo.setDueño(null);
+                            manager.getTransaction().begin();
+                            manager.persist(vehiculo);
+                            manager.getTransaction().commit();
+                        }
                         manager.getTransaction().begin();
                         manager.remove(mergedMember);
                         manager.getTransaction().commit();
-                        System.out.println("La eliminacion de la persona " + p.getCi() + " se realizo correctamente");
+                        System.out.println("La eliminacion de la persona " + ci + " se realizo correctamente");
                     } catch (Exception e) {
                         System.out.println("Exception caught: " + e.getMessage());
                     } finally {
@@ -104,17 +112,17 @@ public class ActualizadorBDYConsultasJPQL {
         }
     }
 
-    public void bajaDeLicencia(LicenciaConductor l) {
+    public void bajaDeLicencia(int numero) {
         EntityManager manager = verificarConexion();
-        if (l != null) {
+        if (numero > 0) {
             if (manager != null) {
-                if (manager.find(LicenciaConductor.class, l.getNumero()) != null) {
+                if (manager.find(LicenciaConductor.class, numero) != null) {
                     try {
-                        LicenciaConductor mergedMember = manager.merge(manager.find(LicenciaConductor.class, l.getNumero()));
+                        LicenciaConductor mergedMember = manager.merge(manager.find(LicenciaConductor.class, numero));
                         manager.getTransaction().begin();
                         manager.remove(mergedMember);
                         manager.getTransaction().commit();
-                        System.out.println("La eliminacion de la licencia " + l.getNumero() + " se realizo correctamente");
+                        System.out.println("La eliminacion de la licencia " + numero + " se realizo correctamente");
                     } catch (Exception e) {
                         System.out.println("Exception caught: " + e.getMessage());
                     } finally {
@@ -132,6 +140,7 @@ public class ActualizadorBDYConsultasJPQL {
         }
     }
 //METODOS OBLIGATORIOS
+
     public void altaDePersona(Persona p, List<Vehiculo> listaV, List<LicenciaConductor> listaL) {
         EntityManager manager = verificarConexion();
         if (p != null) {
@@ -182,17 +191,17 @@ public class ActualizadorBDYConsultasJPQL {
         }
     }
 
-    public void bajaDeVehiculo(Vehiculo v) {
+    public void bajaDeVehiculo(String matricula) {
         EntityManager manager = verificarConexion();
-        if (v != null) {
+        if (matricula != null) {
             if (manager != null) {
-                if (manager.find(v.getClass(), v.getMatricula()) != null) {
+                if (manager.find(Vehiculo.class, matricula) != null) {
                     try {
-                        Vehiculo mergedMember = manager.merge(manager.find(Vehiculo.class, v.getMatricula()));
+                        Vehiculo mergedMember = manager.merge(manager.find(Vehiculo.class, matricula));
                         manager.getTransaction().begin();
                         manager.remove(mergedMember);
                         manager.getTransaction().commit();
-                        System.out.println("La eliminacion del vehiculo de matricula " + v.getMatricula() + " se realizo correctamente");
+                        System.out.println("La eliminacion del vehiculo de matricula " + matricula + " se realizo correctamente");
                     } catch (Exception e) {
                         System.out.println("Exception caught: " + e.getMessage());
                     } finally {
@@ -200,7 +209,7 @@ public class ActualizadorBDYConsultasJPQL {
                         setEm(null);
                     }
                 } else {
-                    System.out.println("El vehiculo de matricula " + v.getMatricula() + " no existe en la base de datos");
+                    System.out.println("El vehiculo de matricula " + matricula + " no existe en la base de datos");
                 }
             } else {
                 System.out.println("Fallo la conexion");
@@ -262,6 +271,7 @@ public class ActualizadorBDYConsultasJPQL {
         return null;
     }
 //CONSULTAS JPQL
+
     public void consultaPromedio() {
         EntityManager manager = verificarConexion();
         if (manager != null) {

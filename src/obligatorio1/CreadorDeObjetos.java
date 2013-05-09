@@ -25,15 +25,21 @@ public class CreadorDeObjetos {
 
     public void crearMoto(EntityManager em, Moto vec) {
         if (em.find(Vehiculo.class, vec.getMatricula()) == null) {
-            try {
-                em.getTransaction().begin();
-                em.persist(vec);
-                em.getTransaction().commit();
-            } catch (Exception e) {
-                System.out.println("Exception caught: " + e.getMessage());
+            if (em.find(TipoMoto.class, vec.getTipo().getId()) != null) {
+                try {
+                    em.getTransaction().begin();
+                    em.persist(vec);
+                    em.getTransaction().commit();
+                } catch (Exception e) {
+                    System.out.println("Exception caught: " + e.getMessage());
+                }
+            } else {
+                System.out.println("No existe en la base de datos el tipoMoto " + vec.getTipo().getId() + " con el que se quiere asociar la moto " + vec.getMatricula());
             }
+        } else {
+            System.out.println("Ya existe un Vehiculo con el numero de matricula " + vec.getMatricula());
         }
-        System.out.println("Ya existe un Vehiculo con el numero de matricula " + vec.getMatricula());
+
     }
 
     public void crearCamion(EntityManager em, Camion vec) {

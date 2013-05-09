@@ -1,5 +1,7 @@
 package obligatorio1.jpa;
 
+import java.util.ArrayList;
+import java.util.List;
 import obligatorio1.*;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
@@ -16,12 +18,15 @@ public class JPATest {
 
     @BeforeClass
     public static void setUpClass() {
-        // Antes de empezar ningun test: ej crear base de datos, tablas, etc
+        actualizadorBDYConsultasJPQL = new ActualizadorBDYConsultasJPQL();
     }
 
     @AfterClass
     public static void tearDownClass() {
-        // Despuéss terminar de correr todos los tests, borrar base de datos, tablas
+        if (actualizadorBDYConsultasJPQL.getEm() != null) {
+            actualizadorBDYConsultasJPQL.getEm().close();
+            actualizadorBDYConsultasJPQL.setEm(null);
+        }
     }
 
     @Before
@@ -36,6 +41,23 @@ public class JPATest {
 
     @Test
     public void testAgregarPersona() throws Exception {
+        Persona p = new Persona(45609876, "Jeasmine", "Bv Artigas");
+        LicenciaConductor li = new LicenciaConductor(actualizadorBDYConsultasJPQL.verificarConexion(), 23178938, "R", null, 45609876, null, 1);
+        LicenciaConductor lo = new LicenciaConductor(actualizadorBDYConsultasJPQL.verificarConexion(), 23134739, "W", null, 45609876, null, 1);
+        List<LicenciaConductor> licencias = new ArrayList<>();
+        licencias.add(li);
+        licencias.add(lo);
+        for (LicenciaConductor licenciaConductor : licencias) {
+            p.agregarLicencia(licenciaConductor);
+        }
+        List<Vehiculo> vehiculos = new ArrayList<>();
+        Auto v1 = new Auto(actualizadorBDYConsultasJPQL.verificarConexion(), true, "aaa000", "1234567", "ABCD98765", "BMW", "2012", 45609876);
+        vehiculos.add(v1);
+        Vehiculo v2 = new Vehiculo(actualizadorBDYConsultasJPQL.verificarConexion(), "bbb000", "65541723", "HSBC4321", "Bicy", "2010", 45609876);
+        vehiculos.add(v2);
+        for (Vehiculo vehiculo : vehiculos) {
+            p.agregarVehiculo(vehiculo);
+        }
     }
 
     @Test
