@@ -82,6 +82,5 @@ public class CreadorDeObjetos {
         Query departamentosID = em.createQuery("Select departamento.id from Departamento departamento");
         List ids = departamentosID.getResultList();
         System.out.println("Los IDs que no se pueden utilizar son " + ids.toString());
-
     }
 }

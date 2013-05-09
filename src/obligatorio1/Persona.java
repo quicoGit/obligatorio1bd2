@@ -21,7 +21,7 @@ public class Persona implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "dueño", cascade = CascadeType.PERSIST)
     private Set<Vehiculo> vehiculos;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "propietario", cascade = CascadeType.ALL)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+//    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<LicenciaConductor> licenciasDeConducir;
 
     public Persona(int ci, String apellido, String domicilio) {

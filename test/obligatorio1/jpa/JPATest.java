@@ -2,8 +2,10 @@ package obligatorio1.jpa;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.LockModeType;
 import obligatorio1.*;
 import org.junit.*;
+import static org.junit.Assert.assertEquals;
 import org.junit.rules.ExpectedException;
 
 /**
@@ -43,21 +45,13 @@ public class JPATest {
     public void testAgregarPersona() throws Exception {
         Persona p = new Persona(45609876, "Jeasmine", "Bv Artigas");
         LicenciaConductor li = new LicenciaConductor(actualizadorBDYConsultasJPQL.verificarConexion(), 23178938, "R", null, 45609876, null, 1);
-        LicenciaConductor lo = new LicenciaConductor(actualizadorBDYConsultasJPQL.verificarConexion(), 23134739, "W", null, 45609876, null, 1);
-        List<LicenciaConductor> licencias = new ArrayList<>();
-        licencias.add(li);
-        licencias.add(lo);
-        for (LicenciaConductor licenciaConductor : licencias) {
-            p.agregarLicencia(licenciaConductor);
-        }
-        List<Vehiculo> vehiculos = new ArrayList<>();
+        p.agregarLicencia(li);
         Auto v1 = new Auto(actualizadorBDYConsultasJPQL.verificarConexion(), true, "aaa000", "1234567", "ABCD98765", "BMW", "2012", 45609876);
-        vehiculos.add(v1);
-        Vehiculo v2 = new Vehiculo(actualizadorBDYConsultasJPQL.verificarConexion(), "bbb000", "65541723", "HSBC4321", "Bicy", "2010", 45609876);
-        vehiculos.add(v2);
-        for (Vehiculo vehiculo : vehiculos) {
-            p.agregarVehiculo(vehiculo);
-        }
+        p.agregarVehiculo(v1);
+        actualizadorBDYConsultasJPQL.altaDePersona(p, (List) p.getVehiculos(), (List) p.getLicenciasDeConducir());
+        assertEquals(actualizadorBDYConsultasJPQL.verificarConexion().find(Persona.class, 45609876), p);
+        assertEquals(actualizadorBDYConsultasJPQL.verificarConexion().find(Vehiculo.class, "aaa000").getDueño(), p);
+        assertEquals(actualizadorBDYConsultasJPQL.verificarConexion().find(LicenciaConductor.class, 23178938).getPropietario(), p);
     }
 
     @Test
