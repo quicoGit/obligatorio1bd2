@@ -293,9 +293,9 @@ public class ActualizadorBDYConsultasJPQL {
                         if (manager.find(LicenciaConductor.class, nueva.getNumero()) == null) {
                             if (nueva.getPropietario().getCi() == persona.getCi()) {
                                 persona.agregarLicencia(nueva);
-                            } else {
-                                System.out.println("****La licencia de numero " + nueva.getNumero() + "no se pudo actualizar, dado que esta asociada a otra persona");
                             }
+                        } else {
+                            System.out.println("***La licencia de numero " + nueva.getNumero() + " no se pudo agregar pertenece a otra persona");
                         }
                     }
                 }
