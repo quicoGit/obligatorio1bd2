@@ -47,6 +47,10 @@ public class Persona implements Serializable {
         return licenciasDeConducir.remove(l);
     }
 
+    public boolean removerVehiculo(Vehiculo v) {
+        return vehiculos.remove(v);
+    }
+
     public Set<LicenciaConductor> getLicenciasDeConducir() {
         return licenciasDeConducir;
     }

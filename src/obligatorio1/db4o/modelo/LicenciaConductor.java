@@ -2,6 +2,7 @@ package obligatorio1.db4o.modelo;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  *
@@ -91,12 +92,13 @@ public class LicenciaConductor implements Serializable {
     public int hashCode() {
         int hash = 7;
         hash = 53 * hash + this.numero;
+        hash = 53 * hash + Objects.hashCode(this.categoria);
+        hash = 53 * hash + Objects.hashCode(this.vencimiento);
+        hash = 53 * hash + Objects.hashCode(this.restriccion);
+        hash = 53 * hash + Objects.hashCode(this.departamento);
         return hash;
     }
 
-    /**
-     * Equals segun PK
-     */
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -107,6 +109,18 @@ public class LicenciaConductor implements Serializable {
         }
         final LicenciaConductor other = (LicenciaConductor) obj;
         if (this.numero != other.numero) {
+            return false;
+        }
+        if (!Objects.equals(this.categoria, other.categoria)) {
+            return false;
+        }
+        if (!Objects.equals(this.vencimiento, other.vencimiento)) {
+            return false;
+        }
+        if (!Objects.equals(this.restriccion, other.restriccion)) {
+            return false;
+        }
+        if (!Objects.equals(this.departamento, other.departamento)) {
             return false;
         }
         return true;

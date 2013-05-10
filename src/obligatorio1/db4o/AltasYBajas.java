@@ -6,8 +6,8 @@ import com.db4o.ext.DatabaseClosedException;
 import com.db4o.ext.DatabaseReadOnlyException;
 import com.db4o.ext.Db4oIOException;
 import java.util.ArrayList;
-import obligatorio1.db4o.modelo.*;
 import java.util.List;
+import obligatorio1.db4o.modelo.*;
 
 /**
  *
@@ -16,15 +16,41 @@ import java.util.List;
 public class AltasYBajas {
 
     final ObjectContainer db;
+    final ManejadorPersona personas;
+    final ManejadorVehiculo vehiculos;
+    final ManejadorLicencia licencias;
+    final ManejadorDepartamento departamentos;
 
     public AltasYBajas(String file) {
         this.db = Db4o.openFile(file);
+
+        personas = new ManejadorPersona(db);
+        vehiculos = new ManejadorVehiculo(db);
+        licencias = new ManejadorLicencia(db);
+        departamentos = new ManejadorDepartamento(db);
+
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
                 db.close();
             }
         }));
+    }
+
+    public ManejadorPersona getPersonas() {
+        return personas;
+    }
+
+    public ManejadorVehiculo getVehiculos() {
+        return vehiculos;
+    }
+
+    public ManejadorLicencia getLicencias() {
+        return licencias;
+    }
+
+    public ManejadorDepartamento getDepartamentos() {
+        return departamentos;
     }
 
     @Override
@@ -37,41 +63,16 @@ public class AltasYBajas {
         return db;
     }
 
-    public Persona findPersona(int ci) {
-        List<Persona> resultado = db.queryByExample(new Persona(ci, null, null));
-        switch (resultado.size()) {
-            case 0:
-                return null;
-            case 1:
-                return resultado.get(0);
-            default:
-                StringBuilder buffer = new StringBuilder("Existe más de una Persona con la cédula: " + ci);
-                for (Persona persona : resultado) {
-                    buffer.append(persona);
-                    buffer.append('\n');
-                }
-                throw new PersistenciaException(buffer.toString());
-        }
-    }
-
-    public Persona getPersona(int ci) {
-        Persona existe = findPersona(ci);
-        if (existe == null) {
-            throw new PersistenciaException("No existe una persona con dicha cedula: " + ci);
-        } else {
-            return existe;
-        }
-    }
-
-    public void verificarPersonaInexistente(int ci) {
-        if (findPersona(ci) != null) {
-            throw new PersistenciaException("Ya existe una persona con dicha cedula: " + ci);
-        }
-    }
-
     public void bajaDePersona(Persona p) {
-        Persona persona = getPersona(p.getCi());
+        Persona persona = personas.get(p.getCi());
         try {
+            for (LicenciaConductor licenciaConductor : persona.getLicenciasDeConducir()) {
+                db.delete(licenciaConductor);
+            }
+            for (Vehiculo vehiculo : persona.getVehiculos()) {
+                vehiculo.setDueño(null);
+                db.store(vehiculo);
+            }
             db.delete(persona);
             db.commit();
         } catch (Db4oIOException | DatabaseClosedException | DatabaseReadOnlyException e) {
@@ -81,17 +82,21 @@ public class AltasYBajas {
     }
 
     public void altaDePersona(Persona p, List<Vehiculo> listaV, List<LicenciaConductor> listaL) {
-        verificarPersonaInexistente(p.getCi());
+        personas.verificarInexistente(p.getCi());
 
         if (listaV != null) {
             for (Vehiculo vehiculo : listaV) {
+                if (!vehiculo.getDueño().equals(p)) {
+                    throw new PersistenciaException("Vehiculo " + vehiculo + " con dueño " + vehiculo.getDueño() + " es distinto de " + p + ".");
+                }
+                vehiculos.verificarInexistente(vehiculo.getMatricula());
                 p.agregarVehiculo(vehiculo);
             }
         }
 
         if (listaL != null) {
-            for (LicenciaConductor licenciaConductor : listaL) {
-                p.agregarLicencia(licenciaConductor);
+            for (LicenciaConductor licencia : listaL) {
+                agregarLicencia(p, licencia);
             }
         }
 
@@ -104,36 +109,12 @@ public class AltasYBajas {
         }
     }
 
-    public Vehiculo findVehiculo(String matricula) {
-        List<Vehiculo> resultado = db.queryByExample(new Vehiculo(matricula, null, null, null, null, null));
-        switch (resultado.size()) {
-            case 0:
-                return null;
-            case 1:
-                return resultado.get(0);
-            default:
-                StringBuilder buffer = new StringBuilder("Existe más de un Vehiculo con la matrícula: " + matricula);
-                for (Vehiculo vehiculo : resultado) {
-                    buffer.append(vehiculo);
-                    buffer.append('\n');
-                }
-                throw new PersistenciaException(buffer.toString());
-        }
-    }
-
-    public Vehiculo getVehiculo(String matricula) {
-        Vehiculo existe = findVehiculo(matricula);
-        if (existe == null) {
-            throw new PersistenciaException("No existe Vehículo con matrícula: " + matricula);
-        } else {
-            return existe;
-        }
-    }
-
     public void bajaDeVehiculo(Vehiculo v) {
-        Vehiculo existe = getVehiculo(v.getMatricula());
+        Vehiculo existe = vehiculos.get(v.getMatricula());
 
         try {
+            existe.getDueño().removerVehiculo(existe);
+            db.store(existe.getDueño());
             db.delete(existe);
             db.commit();
         } catch (Db4oIOException | DatabaseClosedException | DatabaseReadOnlyException e) {
@@ -142,16 +123,26 @@ public class AltasYBajas {
         }
     }
 
+    private void agregarLicencia(Persona p, LicenciaConductor l) {
+        if (!l.getPropietario().equals(p)) {
+            throw new PersistenciaException("Licencia " + l + " con propietario " + l.getPropietario() + " es distinto de " + p + ".");
+        }
+        licencias.verificarInexistente(l.getNumero());
+        p.agregarLicencia(l);
+    }
+
     public Persona actualizarLicencias(Persona p) {
-        Persona persona = getPersona(p.getCi());
+        Persona persona = personas.get(p.getCi());
 
         List<LicenciaConductor> eliminar = new ArrayList<>();
         for (LicenciaConductor vieja : persona.getLicenciasDeConducir()) {
             boolean remover = true;
             for (LicenciaConductor nueva : p.getLicenciasDeConducir()) {
-                if (nueva.getNumero() == vieja.getNumero()) {
-                    vieja.copy(nueva);
-                    remover = false;
+                if (nueva.equals(vieja)) {
+                    remover = false; // Se mantiene igual
+                    break;
+                } else if (nueva.getNumero() == vieja.getNumero()) {
+                    // Hay que actualizar
                     break;
                 }
             }
@@ -168,7 +159,8 @@ public class AltasYBajas {
 
             for (LicenciaConductor nueva : p.getLicenciasDeConducir()) {
                 if (!persona.getLicenciasDeConducir().contains(nueva)) {
-                    persona.agregarLicencia(nueva);
+                    nueva.setPropietario(persona);
+                    agregarLicencia(persona, nueva);
                 }
             }
 

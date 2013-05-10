@@ -1,6 +1,7 @@
 package obligatorio1.db4o.modelo;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  *
@@ -38,5 +39,31 @@ public class Departamento implements Serializable {
     @Override
     public String toString() {
         return "Departamento {" + "id=" + id + ", nombre=" + nombre + '}';
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 41 * hash + this.id;
+        hash = 41 * hash + Objects.hashCode(this.nombre);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Departamento other = (Departamento) obj;
+        if (this.id != other.id) {
+            return false;
+        }
+        if (!Objects.equals(this.nombre, other.nombre)) {
+            return false;
+        }
+        return true;
     }
 }
