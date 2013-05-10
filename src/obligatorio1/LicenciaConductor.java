@@ -135,9 +135,6 @@ public class LicenciaConductor implements Serializable {
         if (!Objects.equals(this.categoria, other.categoria)) {
             return false;
         }
-        if (!Objects.equals(this.vencimiento, other.vencimiento)) {
-            return false;
-        }
         if (!Objects.equals(this.restriccion, other.restriccion)) {
             return false;
         }

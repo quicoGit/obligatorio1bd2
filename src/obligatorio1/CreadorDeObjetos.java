@@ -94,10 +94,7 @@ public class CreadorDeObjetos {
                 throw new PersistenciaException(e.getMessage(), e);
             }
         } else {
-            System.out.println("No se pudo agregar ya existe un departamento con dicho id " + d.getId());
-            Query departamentosID = em.createQuery("Select departamento.id from Departamento departamento");
-            List ids = departamentosID.getResultList();
-            throw new PersistenciaException("Los ids utilizados con " + ids.toString());
+            throw new PersistenciaException("No se pudo agregar ya existe un departamento con dicho id " + d.getId());
 
         }
     }
