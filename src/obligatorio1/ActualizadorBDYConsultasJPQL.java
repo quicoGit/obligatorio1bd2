@@ -14,7 +14,7 @@ import obligatorio1.db4o.PersistenciaException;
 
 /**
  *
- * @author Jeasty
+ * @author JÑahui
  */
 public class ActualizadorBDYConsultasJPQL {
 
@@ -47,12 +47,12 @@ public class ActualizadorBDYConsultasJPQL {
         if (vehiculo != null) {
             if (manager.find(Vehiculo.class, vehiculo.getMatricula()) != null) {
                 resultado = true;
-                System.out.println("No se puede agregar el vehiculo de matricula " + vehiculo.getMatricula() + " ya existe en la base de datos");
+                System.out.println("No se pudo agregar el vehiculo de matricula " + vehiculo.getMatricula() + " ya existe en la base de datos");
             }
             if (vehiculo.getDueño() != null) {
                 if (vehiculo.getDueño().getCi() != p.getCi()) {
                     resultado = true;
-                    System.out.println("El vehiculo que desea agregar esta asociada a otra persona de cedula " + p.getCi());
+                    System.out.println("No se pudo agregar el vehiculo de matricula " + vehiculo.getMatricula() + " esta asociado a otra persona de cedula " + vehiculo.getDueño().getCi());
                 }
             }
         }
@@ -64,20 +64,53 @@ public class ActualizadorBDYConsultasJPQL {
         if (licencia != null) {
             if (manager.find(LicenciaConductor.class, licencia.getNumero()) != null) {
                 resultado = true;
-                System.out.println("No se puede agregar el vehiculo de matricula " + licencia.getNumero() + " ya existe en la base de datos");
+                System.out.println("No se pudo agregar la licencia de numero " + licencia.getNumero() + " ya existe en la base de datos");
             }
             if (licencia.getPropietario() != null) {
                 if (licencia.getPropietario().getCi() != p.getCi()) {
                     resultado = true;
-                    System.out.println("La licencia que desea agregar esta asociada a otra persona de cedula " + p.getCi());
+                    System.out.println("La licencia de numero " + licencia.getNumero() + " no se pudo agregar, ya esta asociada a otra persona de cedula " + p.getCi());
                 }
             }
-            if (licencia.getDepartamento() == null) {
+            if (manager.find(Departamento.class, licencia.getDepartamento().getId()) == null) {
                 resultado = true;
                 System.out.println("No se pudo agregar la licencia de numero " + licencia.getNumero() + " no pertenece a un Departamento existente en la base de datos");
             }
         }
         return resultado;
+    }
+
+    public void altaVehiculo(Vehiculo v) {
+        EntityManager manager = verificarConexion();
+        if (manager.find(Vehiculo.class, v.getMatricula()) == null) {
+            try {
+                manager.getTransaction().begin();
+                manager.persist(v);
+                manager.getTransaction().commit();
+                System.out.println("El alta del vehiculo de matricula " + v.getMatricula() + " se realizo correctamente");
+            } catch (Exception e) {
+                throw new PersistenciaException(e.getMessage(), e);
+            }
+        } else {
+            throw new PersistenciaException("No se pudo agregar a la base de datos el vehiculo de matricula " + v.getMatricula() + " dado que ya existe uno con la misma matricula");
+        }
+    }
+
+    public void eliminarDepartamento(int id) {
+        EntityManager manager = verificarConexion();
+        if (manager.find(Departamento.class, id) != null) {
+            try {
+                Departamento mergedMember = manager.merge(manager.find(Departamento.class, id));
+                manager.getTransaction().begin();
+                manager.remove(mergedMember);
+                manager.getTransaction().commit();
+                System.out.println("La eliminacion del Departamento de id " + id + " se realizo correctamente");
+            } catch (Exception e) {
+                throw new PersistenciaException(e.getMessage(), e);
+            }
+        } else {
+            throw new PersistenciaException("No existe en la base de datos el Departamento a eliminar");
+        }
     }
 
     public void eliminarTipoMoto(int id) {
@@ -96,13 +129,13 @@ public class ActualizadorBDYConsultasJPQL {
                 manager.getTransaction().commit();
                 System.out.println("La eliminacion del TipoMoto de id " + id + " se realizo correctamente");
             } catch (Exception e) {
-                System.out.println("Exception caught: " + e.getMessage());
+                throw new PersistenciaException(e.getMessage(), e);
             } finally {
                 manager.close();
                 setEm(null);
             }
         } else {
-            System.out.println("Fallo la conexion");
+            throw new PersistenciaException("No existe en la base de datos el TipoMoto a eliminar");
         }
     }
 
@@ -126,13 +159,13 @@ public class ActualizadorBDYConsultasJPQL {
                 manager.getTransaction().commit();
                 System.out.println("La eliminacion de la persona " + ci + " se realizo correctamente");
             } catch (Exception e) {
-                System.out.println("Exception caught: " + e.getMessage());
+                throw new PersistenciaException(e.getMessage(), e);
             } finally {
                 manager.close();
                 setEm(null);
             }
         } else {
-            System.out.println("La persona ha elminar no se encuentra en la base de datos");
+            throw new PersistenciaException("No existe en la base de datos la persona a eliminar");
         }
     }
 
@@ -145,24 +178,26 @@ public class ActualizadorBDYConsultasJPQL {
         if (manager.find(LicenciaConductor.class, numero) != null) {
             try {
                 LicenciaConductor mergedMember = manager.merge(manager.find(LicenciaConductor.class, numero));
-                if (manager.find(Departamento.class, mergedMember.getDepartamento().getId()) == null) {
-                    mergedMember.setDepartamento(null);
-                    manager.getTransaction().begin();
-                    manager.persist(mergedMember);
-                    manager.getTransaction().commit();
+                if (manager.find(LicenciaConductor.class, numero).getDepartamento() != null) {
+                    if (manager.find(Departamento.class, mergedMember.getDepartamento().getId()) == null) {
+                        mergedMember.setDepartamento(null);
+                        manager.getTransaction().begin();
+                        manager.persist(mergedMember);
+                        manager.getTransaction().commit();
+                    }
                 }
                 manager.getTransaction().begin();
                 manager.remove(mergedMember);
                 manager.getTransaction().commit();
                 System.out.println("La eliminacion de la licencia " + numero + " se realizo correctamente");
             } catch (Exception e) {
-                System.out.println("Exception caught: " + e.getMessage());
+                throw new PersistenciaException(e.getMessage(), e);
             } finally {
                 manager.close();
                 setEm(null);
             }
         } else {
-            System.out.println("La licencia ha elminar no se encuentra en la base de datos");
+            throw new PersistenciaException("No existe en la base de datos la licencia a eliminar");
         }
     }
 
@@ -170,7 +205,7 @@ public class ActualizadorBDYConsultasJPQL {
     public void altaDePersona(Persona p, List<Vehiculo> listaV, List<LicenciaConductor> listaL) {
         EntityManager manager = verificarConexion();
         if (manager.find(Persona.class, p.getCi()) != null) {
-            System.out.println("No se pudo realizar el alta, ya existe una persona con dicha cedula: " + p.getCi());
+            throw new PersistenciaException("No se pudo realizar el alta, ya existe una persona con cedula: " + p.getCi());
         } else {
             if (listaV != null) {
                 for (Vehiculo vehiculo : listaV) {
@@ -201,7 +236,7 @@ public class ActualizadorBDYConsultasJPQL {
                 manager.persist(p);
                 manager.getTransaction().commit();
             } catch (Exception e) {
-                System.out.println("Exception caught: " + e.getMessage());
+                throw new PersistenciaException(e.getMessage(), e);
             } finally {
                 manager.close();
                 setEm(null);
@@ -219,17 +254,17 @@ public class ActualizadorBDYConsultasJPQL {
                 manager.getTransaction().commit();
                 System.out.println("La eliminacion del vehiculo de matricula " + matricula + " se realizo correctamente");
             } catch (Exception e) {
-                System.out.println("Exception caught: " + e.getMessage());
+                throw new PersistenciaException(e.getMessage(), e);
             } finally {
                 manager.close();
                 setEm(null);
             }
         } else {
-            System.out.println("El vehiculo de matricula " + matricula + " no existe en la base de datos");
+            throw new PersistenciaException("No se pudo eliminar el vehiculo de matricula " + matricula + " dado que no existe en la base de datos");
         }
     }
 
-    public Persona acutualizarLicencias(Persona p) {
+    public Persona actualizarLicencias(Persona p) {
         EntityManager manager = verificarConexion();
         if (manager.find(Persona.class, p.getCi()) != null) {
             try {
@@ -256,7 +291,11 @@ public class ActualizadorBDYConsultasJPQL {
                 for (LicenciaConductor nueva : p.getLicenciasDeConducir()) {
                     if (!contieneLicenciaPorCategoria(persona.getLicenciasDeConducir(), nueva)) {
                         if (manager.find(LicenciaConductor.class, nueva.getNumero()) == null) {
-                            persona.agregarLicencia(nueva);
+                            if (nueva.getPropietario().getCi() == persona.getCi()) {
+                                persona.agregarLicencia(nueva);
+                            } else {
+                                System.out.println("La licencia de numero " + nueva.getNumero() + "no se pudo actualizar, dado que esta asociada a otra persona");
+                            }
                         }
                     }
                 }
@@ -264,15 +303,14 @@ public class ActualizadorBDYConsultasJPQL {
                 manager.getTransaction().commit();
                 return persona;
             } catch (Exception e) {
-                System.out.println("Exception caught: " + e.getMessage());
+                throw new PersistenciaException(e.getMessage(), e);
             } finally {
                 manager.close();
                 setEm(null);
             }
         } else {
-            System.out.println("No existe una persona en la base de datos con cedula " + p.getCi());
+            throw new PersistenciaException("No se pudo actualiza la persona de cedula " + p.getCi() + " dado que no existe en la base de datos");
         }
-        return null;
     }
 
     private boolean contieneLicenciaPorCategoria(Set<LicenciaConductor> licencias, LicenciaConductor licencia) {
@@ -292,10 +330,11 @@ public class ActualizadorBDYConsultasJPQL {
             Long resPromedio = (Long) promedio.getSingleResult();
             if (resPromedio != null) {
                 System.out.println("Cantidad promedio de vehiculos por persona: " + resPromedio);
+            } else {
+                System.out.println("No hay resultado dado que no hay personas en la base de datos");
             }
-            System.out.println("No hay resultado dado que no hay personas en la base de datos");
         } catch (Exception e) {
-            System.out.println("Exception caught: " + e.getMessage());
+            throw new PersistenciaException(e.getMessage(), e);
         } finally {
             manager.close();
             setEm(null);
@@ -312,10 +351,11 @@ public class ActualizadorBDYConsultasJPQL {
                 for (Persona persona : listaPer) {
                     System.out.println("Personas que tienen más de una licencia del mismo tipo emitidas en distintos departamentos: " + persona);
                 }
+            } else {
+                System.out.println("No hay personas que tengan más de una licencia del mismo tipo emitidas en distintos departamentos");
             }
-            System.out.println("No hay personas que tengan más de una licencia del mismo tipo emitidas en distintos departamentos");
         } catch (Exception e) {
-            System.out.println("Exception caught: " + e.getMessage());
+            throw new PersistenciaException(e.getMessage(), e);
         } finally {
             manager.close();
             setEm(null);

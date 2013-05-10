@@ -3,6 +3,7 @@ package obligatorio1;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import obligatorio1.db4o.PersistenciaException;
 
 /**
  *
@@ -17,10 +18,10 @@ public class CreadorDeObjetos {
                 em.persist(vec);
                 em.getTransaction().commit();
             } catch (Exception e) {
-                System.out.println("Exception caught: " + e.getMessage());
+                throw new PersistenciaException(e.getMessage(), e);
             }
         }
-        System.out.println("Ya existe un Vehiculo con el numero de matricula " + vec.getMatricula());
+        throw new PersistenciaException("No se puede crear el vehiculo, ya existe uno bajo la matricula " + vec.getMatricula());
     }
 
     public void crearMoto(EntityManager em, Moto vec) {
@@ -31,15 +32,29 @@ public class CreadorDeObjetos {
                     em.persist(vec);
                     em.getTransaction().commit();
                 } catch (Exception e) {
-                    System.out.println("Exception caught: " + e.getMessage());
+                    throw new PersistenciaException(e.getMessage(), e);
                 }
             } else {
-                System.out.println("No existe en la base de datos el tipoMoto " + vec.getTipo().getId() + " con el que se quiere asociar la moto " + vec.getMatricula());
+                throw new PersistenciaException("No existe en la base de datos el tipoMoto " + vec.getTipo().getId() + " con el que se quiere asociar la moto " + vec.getMatricula());
             }
         } else {
-            System.out.println("Ya existe un Vehiculo con el numero de matricula " + vec.getMatricula());
+            throw new PersistenciaException("No se puede crear la moto, ya existe una bajo la matricula " + vec.getMatricula());
         }
+    }
 
+    public void crearTipoMoto(EntityManager em, TipoMoto vec) {
+        if (em.find(TipoMoto.class, vec.getId()) == null) {
+            try {
+                em.getTransaction().begin();
+                em.persist(vec);
+                em.getTransaction().commit();
+            } catch (Exception e) {
+                throw new PersistenciaException(e.getMessage(), e);
+            }
+
+        } else {
+            throw new PersistenciaException("No se puede crear el TipoMoto, ya existe una bajo el id " + vec.getId());
+        }
     }
 
     public void crearCamion(EntityManager em, Camion vec) {
@@ -49,10 +64,10 @@ public class CreadorDeObjetos {
                 em.persist(vec);
                 em.getTransaction().commit();
             } catch (Exception e) {
-                System.out.println("Exception caught: " + e.getMessage());
+                throw new PersistenciaException(e.getMessage(), e);
             }
         }
-        System.out.println("Ya existe un Vehiculo con el numero de matricula " + vec.getMatricula());
+        throw new PersistenciaException("No se puede crear el camion, ya existe uno bajo la matricula" + vec.getMatricula());
     }
 
     public void crearLicencia(EntityManager em, LicenciaConductor lic) {
@@ -62,10 +77,11 @@ public class CreadorDeObjetos {
                 em.persist(lic);
                 em.getTransaction().commit();
             } catch (Exception e) {
-                System.out.println("Exception caught: " + e.getMessage());
+                throw new PersistenciaException(e.getMessage(), e);
             }
         }
-        System.out.println("Ya existe una licencia con el numero " + lic.getNumero());
+        throw new PersistenciaException("No se puede crear la licencia, ya existe una bajo el numero " + lic.getNumero());
+
     }
 
     public void crearDepartamento(EntityManager em, Departamento d) {
@@ -75,12 +91,14 @@ public class CreadorDeObjetos {
                 em.persist(d);
                 em.getTransaction().commit();
             } catch (Exception e) {
-                System.out.println("Exception caught: " + e.getMessage());
+                throw new PersistenciaException(e.getMessage(), e);
             }
+        } else {
+            System.out.println("No se pudo agregar ya existe un departamento con dicho id " + d.getId());
+            Query departamentosID = em.createQuery("Select departamento.id from Departamento departamento");
+            List ids = departamentosID.getResultList();
+            throw new PersistenciaException("Los ids utilizados con " + ids.toString());
+
         }
-        System.out.println("Ya existe un departamento con dicho id " + d.getId());
-        Query departamentosID = em.createQuery("Select departamento.id from Departamento departamento");
-        List ids = departamentosID.getResultList();
-        System.out.println("Los IDs que no se pueden utilizar son " + ids.toString());
     }
 }
