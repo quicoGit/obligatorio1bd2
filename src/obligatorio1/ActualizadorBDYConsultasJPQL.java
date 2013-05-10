@@ -294,7 +294,7 @@ public class ActualizadorBDYConsultasJPQL {
                             if (nueva.getPropietario().getCi() == persona.getCi()) {
                                 persona.agregarLicencia(nueva);
                             } else {
-                                System.out.println("La licencia de numero " + nueva.getNumero() + "no se pudo actualizar, dado que esta asociada a otra persona");
+                                System.out.println("****La licencia de numero " + nueva.getNumero() + "no se pudo actualizar, dado que esta asociada a otra persona");
                             }
                         }
                     }
@@ -315,7 +315,7 @@ public class ActualizadorBDYConsultasJPQL {
 
     private boolean contieneLicenciaPorCategoria(Set<LicenciaConductor> licencias, LicenciaConductor licencia) {
         for (LicenciaConductor l : licencias) {
-            if (l.getCategoria().equals(licencia.getCategoria())) {
+            if (l.getNumero() == licencia.getNumero()) {
                 return true;
             }
         }

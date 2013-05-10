@@ -184,6 +184,12 @@ public class JPATest {
     @Test
     public void testActualizarLicencias() throws Exception {
         Persona p = new Persona(45903730, "Tomas", "Casita 1234");
+        Persona p2 = new Persona(45678905, "Jeasty", "Casita 1234");
+        LicenciaConductor l5nueva = new LicenciaConductor(24177834, "B", dNow, p2, "Sin restriccion", actualizador.verificarConexion().find(Departamento.class, 4));
+        List<LicenciaConductor> vehi = new ArrayList<>();
+        vehi.add(l5nueva);
+        actualizador.altaDePersona(p2, null, vehi);
+
         LicenciaConductor l1 = new LicenciaConductor(19283746, "A", dNow, p, "Sin restriccion", actualizador.verificarConexion().find(Departamento.class, 3));
         LicenciaConductor l2 = new LicenciaConductor(96763746, "A", dNow, p, "Sin restriccion", actualizador.verificarConexion().find(Departamento.class, 4));
         LicenciaConductor l3 = new LicenciaConductor(13458536, "B", dNow, p, "Sin restriccion", actualizador.verificarConexion().find(Departamento.class, 6));
@@ -192,6 +198,7 @@ public class JPATest {
         licencias.add(l2);
         licencias.add(l3);
         actualizador.altaDePersona(p, null, licencias);
+
         assertEquals(p, (actualizador.verificarConexion().find(LicenciaConductor.class, l1.getNumero())).getPropietario());
         assertEquals(p, (actualizador.verificarConexion().find(LicenciaConductor.class, l2.getNumero())).getPropietario());
         assertEquals(p, (actualizador.verificarConexion().find(LicenciaConductor.class, l3.getNumero())).getPropietario());
@@ -202,10 +209,12 @@ public class JPATest {
         List<LicenciaConductor> nuevasLicencias = new ArrayList<>();
         nuevasLicencias.add(l2modificada);
         nuevasLicencias.add(l4nueva);
+        nuevasLicencias.add(l5nueva);
         for (LicenciaConductor licenciaConductor : nuevasLicencias) {
             pActualizada.agregarLicencia(licenciaConductor);
         }
-        System.out.println("Licencia antes de modificarse " + actualizador.verificarConexion().find(LicenciaConductor.class, l2.getNumero()));
+
+        System.out.println("****Licencia antes de modificarse " + actualizador.verificarConexion().find(LicenciaConductor.class, l2.getNumero()));
         actualizador.actualizarLicencias(pActualizada);
         // No Contiene
         assertEquals(null, actualizador.verificarConexion().find(LicenciaConductor.class, 19283746));
@@ -213,6 +222,14 @@ public class JPATest {
         // Contiene
         assertEquals(l4nueva, actualizador.verificarConexion().find(LicenciaConductor.class, 52287450));
         assertEquals(l2modificada, actualizador.verificarConexion().find(LicenciaConductor.class, 96763746));
-        System.out.println("Licencia antes de modificarse " + actualizador.verificarConexion().find(LicenciaConductor.class, l2.getNumero()));
+        System.out.println("****Licencia despues de modificarse " + actualizador.verificarConexion().find(LicenciaConductor.class, l2.getNumero()));
+        assertEquals(p2, actualizador.verificarConexion().find(LicenciaConductor.class, 24177834).getPropietario());
+        assertEquals(l5nueva, actualizador.verificarConexion().find(LicenciaConductor.class, 24177834));
+        for (LicenciaConductor licenciaConductor : actualizador.verificarConexion().find(Persona.class, p.getCi()).getLicenciasDeConducir()) {
+            boolean resultado = licenciaConductor.equals(l5nueva);
+            assertEquals(false, resultado);
+
+        }
+
     }
 }
